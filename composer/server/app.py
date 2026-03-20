@@ -3,6 +3,9 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="Composer API")
 
+from composer.server.routes.clips import router as clips_router  # noqa: E402
+app.include_router(clips_router)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:7860", "http://localhost:3000"],
