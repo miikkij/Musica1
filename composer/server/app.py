@@ -31,7 +31,7 @@ def health():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+    uvicorn.run("composer.server.app:app", host="127.0.0.1", port=8000)
 
 from pathlib import Path
 from fastapi.staticfiles import StaticFiles
