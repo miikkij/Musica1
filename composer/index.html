@@ -28,6 +28,7 @@
           </select>
         </label>
         <label>Master: <input type="range" id="input-master-vol" min="0" max="1" step="0.01" value="1"></label>
+        <label>Length: <input type="text" id="input-length" value="auto" placeholder="m:ss" style="width:50px;"></label>
       </div>
       <div class="transport-right">
         <button id="btn-export">Export Mix</button>
@@ -54,11 +55,33 @@
         </div>
       </aside>
       <section id="timeline-container">
-        <div id="track-controls"></div>
+        <div id="toolbar">
+          <div class="toolbar-modes">
+            <button class="toolbar-btn active" data-mode="cursor" id="btn-mode-cursor">&#9654; Cursor</button>
+            <button class="toolbar-btn" data-mode="shift" id="btn-mode-move">&#8596; Move</button>
+            <button class="toolbar-btn" data-mode="select" id="btn-mode-select">&#9634; Select</button>
+          </div>
+          <div class="toolbar-right">
+            <span class="toolbar-label">Zoom:</span>
+            <button class="toolbar-btn" id="btn-zoom-out">-</button>
+            <button class="toolbar-btn" id="btn-zoom-in">+</button>
+          </div>
+        </div>
+        <div id="minimap-container">
+          <canvas id="minimap-canvas"></canvas>
+        </div>
         <div id="playlist-container"></div>
       </section>
     </div>
   </div>
   <script type="module" src="/src/main.js"></script>
+  <div id="context-menu">
+    <div class="ctx-item" data-action="duplicate">Duplicate Clip</div>
+    <div class="ctx-item" data-action="loop2">Loop x2</div>
+    <div class="ctx-item" data-action="loop4">Loop x4</div>
+    <div class="ctx-item" data-action="loopfill">Loop to Fill...</div>
+    <div class="ctx-separator"></div>
+    <div class="ctx-item danger" data-action="delete">Delete Clip</div>
+  </div>
 </body>
 </html>
