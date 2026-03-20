@@ -543,3 +543,149 @@ select:focus {
     min-width: 180px;
   }
 }
+
+/* ── Mode Toolbar ──────────────────────────────────────────────────────────── */
+#toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 12px;
+  background: #121a30;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  height: 32px;
+}
+
+.toolbar-modes, .toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.toolbar-label {
+  color: #888;
+  font-size: 10px;
+  margin-right: 4px;
+}
+
+.toolbar-btn {
+  background: var(--accent3);
+  color: var(--text);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 3px;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.toolbar-btn:hover {
+  background: var(--accent2);
+  border-color: var(--accent);
+}
+
+.toolbar-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ── Minimap ───────────────────────────────────────────────────────────────── */
+#minimap-container {
+  height: 32px;
+  background: #0d0d1a;
+  border-bottom: 1px solid #444;
+  position: relative;
+  flex-shrink: 0;
+}
+
+#minimap-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.minimap-viewport {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border: 2px solid var(--accent);
+  background: rgba(233, 69, 96, 0.08);
+  border-radius: 2px;
+  cursor: grab;
+  z-index: 2;
+}
+
+.minimap-viewport:active {
+  cursor: grabbing;
+}
+
+.minimap-label {
+  position: absolute;
+  right: 4px;
+  top: 2px;
+  font-size: 8px;
+  color: #666;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── Context Menu ──────────────────────────────────────────────────────────── */
+#context-menu {
+  display: none;
+  position: fixed;
+  background: var(--bg-mid);
+  border: 1px solid #444;
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 160px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+#context-menu.visible {
+  display: block;
+}
+
+.ctx-item {
+  padding: 6px 16px;
+  font-size: 12px;
+  color: var(--text);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ctx-item:hover {
+  background: var(--accent3);
+}
+
+.ctx-item.danger {
+  color: var(--accent);
+}
+
+.ctx-item.danger:hover {
+  background: rgba(233, 69, 96, 0.15);
+}
+
+.ctx-separator {
+  border-top: 1px solid #444;
+  margin: 4px 0;
+}
+
+/* ── Loop Region Markers ───────────────────────────────────────────────────── */
+.playlist .selection.segment {
+  background: rgba(76, 175, 130, 0.2) !important;
+  border-left: 2px solid #4caf82;
+  border-right: 2px solid #4caf82;
+}
+
+/* ── Song Length End Marker ─────────────────────────────────────────────────── */
+.song-end-marker {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  border-left: 2px dashed #666;
+  pointer-events: none;
+  z-index: 4;
+}
