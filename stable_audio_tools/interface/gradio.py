@@ -1001,7 +1001,7 @@ def create_sampling_ui(model_config, initial_ckpt, inpainting=False):
         fn=lambda audio: audio,
         inputs=[audio_output],
         outputs=[audio_output],
-        _js="""
+        js="""
         (audio) => {
             if (audio) {
                 const filename = audio.split('/').pop().split('\\\\').pop();
