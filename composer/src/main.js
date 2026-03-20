@@ -8,6 +8,7 @@ import {
   stop,
 } from './transport.js';
 import { initTimeline, addTrackToTimeline } from './timeline.js';
+import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 
 console.log('Composer app loaded');
 
@@ -68,6 +69,11 @@ document.getElementById('btn-refresh-clips').addEventListener('click', () => {
 
 // Initial clip load
 refreshClipLibrary();
+
+// ── Project save / load / export ──────────────────────────────────────────────
+document.getElementById('btn-save').addEventListener('click', () => saveProjectUI(projectState));
+document.getElementById('btn-load').addEventListener('click', () => loadProjectUI(projectState));
+document.getElementById('btn-export').addEventListener('click', () => exportMixUI(projectState));
 
 // ── Timeline init ─────────────────────────────────────────────────────────────
 initTimeline(projectState);
