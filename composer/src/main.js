@@ -64,13 +64,16 @@ function autoSave() {
     const tracksInfo = getTracksInfo();
     const state = {
       ...projectState,
-      tracksInfo, // waveform-playlist track positions/names for reload
+      tracksInfo,
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch (e) {
-    // localStorage full or unavailable — ignore silently
+    console.warn('Autosave failed:', e);
   }
 }
+
+// Also save immediately on beforeunload
+window.addEventListener('beforeunload', autoSave);
 
 // Auto-save every 3 seconds
 setInterval(autoSave, 3000);
@@ -182,12 +185,14 @@ initTimeline(projectState).then(() => {
   // Restore tracks from saved state
   if (saved?.tracksInfo && saved.tracksInfo.length > 0) {
     console.log(`Restoring ${saved.tracksInfo.length} tracks from autosave`);
-    // Reload each saved track by finding its WAV in the clip library
     for (const track of saved.tracksInfo) {
-      // Track name was stored without .wav extension
-      const filename = track.name.endsWith('.wav') ? track.name : track.name + '.wav';
+      // Use stored filename (full .wav name), fallback to reconstructing from name
+      const filename = track.filename
+        || (track.name.endsWith('.wav') ? track.name : track.name + '.wav');
+      console.log(`  Restoring track: ${filename} at ${track.start}s`);
       addTrackToTimeline(filename, track.start || 0);
     }
+    toast(`Restored ${saved.tracksInfo.length} track(s) from autosave`, 'info', 3000);
   }
 
   // Periodically update minimap with track info
