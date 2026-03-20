@@ -1,10 +1,9 @@
 import wave
 from pathlib import Path
 
+import composer.server.config as _config
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
-
-from composer.server.config import GENERATIONS_DIR
 
 router = APIRouter(prefix="/api/clips", tags=["clips"])
 
@@ -28,10 +27,11 @@ def _wav_metadata(filepath: Path) -> dict | None:
 
 @router.get("")
 def list_clips():
+    generations_dir = _config.GENERATIONS_DIR
     clips = []
-    if not GENERATIONS_DIR.exists():
+    if not generations_dir.exists():
         return clips
-    for f in sorted(GENERATIONS_DIR.iterdir()):
+    for f in sorted(generations_dir.iterdir()):
         if f.suffix.lower() == ".wav" and f.is_file():
             meta = _wav_metadata(f)
             if meta:
@@ -41,7 +41,7 @@ def list_clips():
 
 @router.get("/{filename}")
 def serve_clip(filename: str):
-    filepath = GENERATIONS_DIR / filename
+    filepath = _config.GENERATIONS_DIR / filename
     if not filepath.exists() or not filepath.is_file():
         raise HTTPException(status_code=404, detail="Clip not found")
     return FileResponse(filepath, media_type="audio/wav")

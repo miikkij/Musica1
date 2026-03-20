@@ -5,7 +5,7 @@ import pytest
 from composer.tests.conftest import create_test_wav
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def setup_export_clips(tmp_generations):
     create_test_wav(tmp_generations / "drums.wav", duration_s=2.0)
     create_test_wav(tmp_generations / "bass.wav", duration_s=2.0)
@@ -26,13 +26,13 @@ def make_project(tracks=None, bpm=120):
     return {"bpm": bpm, "tracks": tracks}
 
 
-def test_export_returns_wav(client):
+def test_export_returns_wav(client, setup_export_clips):
     resp = client.post("/api/export", json=make_project())
     assert resp.status_code == 200
     assert "audio/wav" in resp.headers["content-type"]
 
 
-def test_export_wav_is_valid(client):
+def test_export_wav_is_valid(client, setup_export_clips):
     resp = client.post("/api/export", json=make_project())
     buf = io.BytesIO(resp.content)
     with wave.open(buf) as f:
@@ -49,7 +49,7 @@ def test_export_empty_tracks_returns_silence(client):
         assert f.getnframes() > 0
 
 
-def test_export_muted_track_excluded(client, tmp_generations):
+def test_export_muted_track_excluded(client, tmp_generations, setup_export_clips):
     project = {
         "bpm": 120,
         "tracks": [
@@ -67,7 +67,7 @@ def test_export_muted_track_excluded(client, tmp_generations):
     assert resp.status_code == 200
 
 
-def test_export_solo_track(client, tmp_generations):
+def test_export_solo_track(client, tmp_generations, setup_export_clips):
     project = {
         "bpm": 120,
         "tracks": [

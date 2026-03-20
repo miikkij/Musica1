@@ -1,9 +1,9 @@
 import io
 
+import composer.server.config as _config
 from fastapi import APIRouter, Body
 from fastapi.responses import StreamingResponse
 
-from composer.server.config import GENERATIONS_DIR
 from composer.server.services.audio import mix_down
 
 router = APIRouter(prefix="/api", tags=["export"])
@@ -13,7 +13,7 @@ router = APIRouter(prefix="/api", tags=["export"])
 def export_mix(project: dict = Body(...)):
     tracks = project.get("tracks", [])
     bpm = project.get("bpm", 120)
-    mix = mix_down(tracks, GENERATIONS_DIR, bpm)
+    mix = mix_down(tracks, _config.GENERATIONS_DIR, bpm)
     buf = io.BytesIO()
     mix.export(buf, format="wav")
     buf.seek(0)

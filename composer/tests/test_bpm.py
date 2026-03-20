@@ -35,13 +35,13 @@ def create_click_track_wav(path, bpm=120.0, duration_s=4.0, sample_rate=44100):
         f.writeframes(pcm_int.tobytes())
 
 
-@pytest.fixture(autouse=True)
+@pytest.fixture
 def setup_bpm_files(tmp_generations):
     create_click_track_wav(tmp_generations / "click_120bpm.wav", bpm=120.0, duration_s=8.0)
     create_click_track_wav(tmp_generations / "click_90bpm.wav", bpm=90.0, duration_s=8.0)
 
 
-def test_bpm_detection_returns_value(client):
+def test_bpm_detection_returns_value(client, setup_bpm_files):
     resp = client.post("/api/bpm", json={"filename": "click_120bpm.wav"})
     assert resp.status_code == 200
     data = resp.json()
@@ -55,7 +55,7 @@ def test_bpm_detection_missing_file_returns_404(client):
     assert resp.status_code == 404
 
 
-def test_bpm_detection_response_shape(client):
+def test_bpm_detection_response_shape(client, setup_bpm_files):
     resp = client.post("/api/bpm", json={"filename": "click_120bpm.wav"})
     data = resp.json()
     assert "filename" in data

@@ -1,5 +1,6 @@
 import librosa
 import numpy as np
+import soundfile as sf
 from pathlib import Path
 from pydub import AudioSegment
 
@@ -70,3 +71,17 @@ def mix_down(tracks: list[dict], generations_dir: Path, bpm: float) -> AudioSegm
         mix = mix.apply_gain(change_in_dBFS)
 
     return mix
+
+
+def time_stretch_clip(filepath: Path, original_bpm: float, target_bpm: float, output_dir: Path) -> Path:
+    y, sr = librosa.load(str(filepath), sr=None, mono=False)
+    rate = target_bpm / original_bpm
+    if y.ndim == 1:
+        stretched = librosa.effects.time_stretch(y, rate=rate)
+    else:
+        channels = [librosa.effects.time_stretch(y[ch], rate=rate) for ch in range(y.shape[0])]
+        stretched = np.stack(channels)
+    output_name = f"{filepath.stem}_stretched_{int(target_bpm)}bpm.wav"
+    output_path = output_dir / output_name
+    sf.write(str(output_path), stretched.T if stretched.ndim > 1 else stretched, sr)
+    return output_path
