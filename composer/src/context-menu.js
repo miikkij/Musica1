@@ -1,4 +1,7 @@
-import { getMode } from './toolbar.js';
+/**
+ * Right-click context menu for clips on the timeline.
+ * Active in any mode (not just Move) for usability.
+ */
 
 const menu = document.getElementById('context-menu');
 let actionCallback = null;
@@ -7,7 +10,8 @@ export function initContextMenu(onAction) {
   actionCallback = onAction;
 
   menu.querySelectorAll('.ctx-item').forEach(item => {
-    item.addEventListener('click', () => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
       const action = item.dataset.action;
       hideContextMenu();
       if (actionCallback) actionCallback(action);
@@ -24,8 +28,6 @@ export function initContextMenu(onAction) {
 }
 
 export function showContextMenu(x, y) {
-  if (getMode() !== 'shift') return;
-
   const posX = Math.min(x, window.innerWidth - 170);
   const posY = Math.min(y, window.innerHeight - 210);
 

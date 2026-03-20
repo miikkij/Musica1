@@ -9,11 +9,25 @@ import {
   play,
   stop,
 } from './transport.js';
-import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut, onSelect } from './timeline.js';
+import {
+  initTimeline,
+  addTrackToTimeline,
+  setTimelineState,
+  zoomIn,
+  zoomOut,
+  onSelect,
+  getActiveTrack,
+  removeActiveTrack,
+  duplicateActiveTrack,
+  getTracksInfo,
+  setSnapBpm,
+  setProjectBpm,
+} from './timeline.js';
 import { initToolbar } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
-import { initMinimap } from './minimap.js';
+import { initMinimap, renderMinimap } from './minimap.js';
+import { loopClip } from './api.js';
 
 console.log('Composer app loaded');
 
@@ -37,6 +51,7 @@ bpmInput.addEventListener('input', () => {
   if (!isNaN(val) && val >= 40 && val <= 300) {
     projectState.bpm = val;
     setBpm(val);
+    setProjectBpm(val);
   }
 });
 
@@ -78,6 +93,12 @@ lengthInput.addEventListener('change', () => {
   }
 });
 
+// ── BPM snap toggle ──────────────────────────────────────────────────────────
+const snapCheckbox = document.getElementById('chk-snap');
+snapCheckbox.addEventListener('change', () => {
+  setSnapBpm(snapCheckbox.checked);
+});
+
 // ── Play / Stop / Loop buttons ────────────────────────────────────────────────
 document.getElementById('btn-play').addEventListener('click', () => play());
 document.getElementById('btn-stop').addEventListener('click', () => stop());
@@ -106,9 +127,16 @@ document.getElementById('btn-export').addEventListener('click', () => exportMixU
 initTimeline(projectState).then(() => {
   console.log('Timeline ready');
   initMinimap(document.getElementById('playlist-container'));
+
   onSelect((start, end) => {
     setLoopRegion(start, end);
   });
+
+  // Periodically update minimap with track info
+  setInterval(() => {
+    const tracks = getTracksInfo();
+    if (tracks.length > 0) renderMinimap(tracks);
+  }, 2000);
 }).catch(err => {
   console.error('Timeline init failed:', err);
 });
@@ -119,13 +147,59 @@ initToolbar({
   onZoomOut: () => zoomOut(),
 });
 
+// ── Context menu with real actions ───────────────────────────────────────────
 document.getElementById('playlist-container').addEventListener('contextmenu', (e) => {
   e.preventDefault();
   showContextMenu(e.clientX, e.clientY);
 });
 
-initContextMenu((action) => {
-  console.log('Context menu action:', action);
+initContextMenu(async (action) => {
+  const track = getActiveTrack();
+
+  switch (action) {
+    case 'delete':
+      removeActiveTrack();
+      break;
+
+    case 'duplicate':
+      duplicateActiveTrack();
+      break;
+
+    case 'loop2':
+    case 'loop4':
+    case 'loopfill': {
+      if (!track) {
+        console.warn('No active track to loop');
+        break;
+      }
+      const name = track.getName ? track.getName() : '';
+      const filename = name.endsWith('.wav') ? name : name + '.wav';
+      const repeatCount = action === 'loop2' ? 2 : action === 'loop4' ? 4 : 8;
+
+      try {
+        const result = await loopClip(filename, repeatCount);
+        if (result.output_filename) {
+          // Add the looped clip as a new track at the same start position
+          const startTime = track.getStartTime();
+          removeActiveTrack();
+          addTrackToTimeline(result.output_filename, startTime);
+        }
+      } catch (err) {
+        console.error('Loop failed:', err);
+        alert('Loop failed: ' + err.message);
+      }
+      break;
+    }
+  }
+});
+
+// ── Delete key removes active track ──────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Delete' || e.key === 'Backspace') {
+    // Don't delete if user is typing in an input
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
+    removeActiveTrack();
+  }
 });
 
 // ── Drop zone: drag clips from sidebar onto timeline ──────────────────────────
@@ -146,7 +220,6 @@ timelineContainer.addEventListener('dragover', (e) => {
 });
 
 timelineContainer.addEventListener('dragleave', (e) => {
-  // Only remove when truly leaving the container (not a child element)
   if (!timelineContainer.contains(e.relatedTarget)) {
     timelineContainer.classList.remove('drag-over');
   }
@@ -165,13 +238,21 @@ timelineContainer.addEventListener('drop', (e) => {
 
   if (!clipData || !clipData.filename) return;
 
-  // Add the track at time 0 (can be repositioned in playlist)
-  addTrackToTimeline(clipData.filename, 0);
+  // Calculate drop position in seconds based on X position in the playlist
+  const playlistEl = document.getElementById('playlist-container');
+  const rect = playlistEl.getBoundingClientRect();
+  const xInPlaylist = e.clientX - rect.left + playlistEl.scrollLeft;
 
-  // Track in project state
+  // Estimate time from pixel position (samplesPerPixel * pixels / sampleRate)
+  // This is approximate — waveform-playlist uses 1000 samples/pixel at 44100 Hz
+  const pixelsToSeconds = 1000 / 44100;
+  const dropTime = Math.max(0, xInPlaylist * pixelsToSeconds);
+
+  addTrackToTimeline(clipData.filename, dropTime);
+
   projectState.tracks.push({
     filename: clipData.filename,
-    startTime: 0,
+    startTime: dropTime,
     gain: 1,
   });
 });
