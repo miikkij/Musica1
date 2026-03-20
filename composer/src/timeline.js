@@ -8,7 +8,6 @@ let ee = null;
 export async function initTimeline(projectState) {
   const container = document.getElementById('playlist-container');
 
-  // WaveformPlaylist.init() returns a Promise that resolves to the playlist instance
   playlist = await WaveformPlaylist.init({
     container,
     timescale: true,
@@ -38,16 +37,16 @@ export async function initTimeline(projectState) {
 export function getEventEmitter() { return ee; }
 
 export function addTrackToTimeline(filename, startTime = 0) {
-  if (!ee) {
+  if (!playlist) {
     console.warn('Timeline not initialized yet');
     return;
   }
-  // Use full URL so waveform-playlist can fetch the audio
   const src = window.location.origin + clipUrl(filename);
-  ee.emit('newtrack', {
+  // Use playlist.load() with the track config array
+  playlist.load([{
     src,
     name: filename.replace('.wav', ''),
     start: startTime,
     gain: 1,
-  });
+  }]);
 }
