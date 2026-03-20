@@ -1,7 +1,23 @@
 
-# 🎵 RC Stable Audio Tools
+# 🎵 Musica1
 
-**Stable Audio Tools** provides training and inference tools for generative audio models from Stability AI. This repository is a fork with additional modifications to enhance functionality such as:
+**AI-powered music composition suite** — generate audio clips with text prompts and arrange them into full songs using a built-in multi-track DAW.
+
+Based on [RC Stable Audio Tools](https://github.com/RoyalCities/RC-stable-audio-tools) (fork of Stability AI's Stable Audio Tools) with a custom **multi-track composer** for arranging AI-generated clips into compositions.
+
+## What's New in Musica1
+
+- **Multi-Track Composer** — browser-based DAW with Canvas timeline, drag-and-drop, loop-extend, zoom, minimap
+- **Advanced Generation Options** — full sampler control (CFG, sigma, steps, seed, negative prompt) from within the composer
+- **Prompt Guide** — built-in help dialog with all instrument/timbre/FX tags and examples
+- **Random Prompt Generator** — one-click tag-based prompt generation
+- **Keyboard Shortcuts** — Space=play/stop, 1/2/3=mode switch, +/-=zoom, H=help
+- **Auto-Save** — project state persists in localStorage automatically
+- **BPM Snap** — clips snap to beat grid when moving
+
+## Upstream Features
+
+This repo inherits all features from RC Stable Audio Tools:
 
 - **Dynamic Model Loading**: Enables dynamic model swaps of the base model and any future community finetune releases.
 
@@ -48,8 +64,8 @@
 First, clone the repository to your local machine:
 
 ```bash
-git clone https://github.com/RoyalCities/RC-stable-audio-tools.git
-cd RC-stable-audio-tools
+git clone https://github.com/miikkij/Musica1.git
+cd Musica1
 ```
 
 ### 🔧 Setup the Environment 
@@ -222,24 +238,47 @@ uv pip install fastapi uvicorn
 ### How it works
 
 1. **Generate clips** in the Gradio UI (port 7860) or directly in the Composer's sidebar
-2. **Drag clips** from the clip library onto the timeline
-3. **Arrange** clips by dragging them to different positions on the timeline
-4. **Play/Stop** using the transport controls — all tracks play in sync
-5. **Adjust** per-track volume, mute, and solo
-6. **Export** the mix as a single WAV file
-7. **Save/Load** projects to continue working later
+2. **Drag clips** from the clip library onto the timeline tracks
+3. **Arrange** — move clips with mouse, loop-extend by dragging right edge
+4. **Multiple clips per track** — drop onto existing tracks to build arrangements
+5. **Play/Stop** with transport controls or Space bar — all tracks play in sync
+6. **Right-click** clips for context menu (duplicate, loop x2/x4, delete)
+7. **Zoom** with +/- keys or Ctrl+scroll, navigate with the minimap
+8. **Export** the mix as a single WAV file
+9. **Save/Load** projects — also auto-saves to localStorage
 
 ### Features
 
-- **Clip Library** — all generated WAVs appear automatically, with duration and drag-and-drop support
-- **Multi-track Timeline** — powered by waveform-playlist, with waveform rendering and bar/beat grid
-- **BPM-locked Generation** — set a project BPM and all generated clips match it
-- **BPM Detection** — librosa-based detection for imported clips
-- **Time Stretching** — stretch clips to match project BPM (librosa phase vocoder)
-- **Project Persistence** — save/load compositions as JSON
-- **Mix Export** — mix all tracks to a single WAV with volume, mute/solo, and peak normalization
-- **Send to Composer** — button in Gradio UI sends generated audio directly to the composer's clip library
-- **Dark Theme** — matches the Gradio UI aesthetic
+- **Canvas Timeline Engine** — custom-built DAW timeline with multi-clip tracks, waveform rendering, bar/beat grid
+- **Clip Looping** — drag right edge to loop-extend, or right-click for loop x2/x4/fill
+- **Minimap** — overview strip showing all clips, draggable viewport for navigation
+- **Three Modes** — Cursor (seek), Move (drag clips), Select (regions) — switch with 1/2/3 keys
+- **BPM Snap** — clips snap to beat boundaries when moving (toggle with toolbar)
+- **Song Length** — auto-extends or set a target duration in mm:ss
+- **Advanced Generation** — full sampler options modal (seed, steps, CFG, sampler, sigma, negative prompt)
+- **Prompt Guide** — built-in help with all instrument/timbre/FX/behavior tags
+- **Random Prompt** — generates tag-based prompts from the Foundation-1 vocabulary
+- **Clip Library** — all generated WAVs with duration display, drag-and-drop
+- **BPM Detection** — librosa-based detection for clips
+- **Time Stretching** — stretch clips to match project BPM
+- **Project Persistence** — save/load as JSON + auto-save to localStorage
+- **Mix Export** — mix all tracks with volume, mute/solo, peak normalization
+- **Send to Composer** — button in Gradio UI sends clips to the composer
+- **Keyboard Shortcuts** — Space, 1/2/3, +/-, H (help), Delete, and more
+- **Dark Theme** — consistent with the Gradio UI
+
+### Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| Space | Play / Stop |
+| 1 | Cursor mode |
+| 2 | Move mode |
+| 3 | Select mode |
+| + / = | Zoom in |
+| - | Zoom out |
+| Delete | Remove selected clip |
+| H | Help dialog |
 
 ### Architecture
 
@@ -247,14 +286,23 @@ uv pip install fastapi uvicorn
 Browser
 ├── Gradio UI (port 7860) ── "Send to Composer" ──┐
 └── Composer App (port 8000)                       │
-    ├── Frontend (waveform-playlist + Tone.js)     │
+    ├── Canvas Timeline Engine (custom JS)         │
     └── FastAPI Backend ◄──────────────────────────┘
         ├── /api/generate   (proxies to Gradio)
         ├── /api/clips      (list/serve WAVs)
         ├── /api/bpm        (BPM detection)
         ├── /api/project    (save/load)
         ├── /api/export     (mix to WAV)
-        └── /api/stretch    (time-stretch)
+        ├── /api/stretch    (time-stretch)
+        └── /api/loop       (repeat clips)
+```
+
+### Syncing with Upstream
+
+This repo tracks [RoyalCities/RC-stable-audio-tools](https://github.com/RoyalCities/RC-stable-audio-tools) as `upstream`:
+
+```bash
+git pull upstream main   # fetch latest changes from RC Stable Audio Tools
 ```
 
 ---
