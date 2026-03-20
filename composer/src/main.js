@@ -5,10 +5,11 @@ import {
   initTransport,
   setBpm,
   setLoop,
+  setLoopRegion,
   play,
   stop,
 } from './transport.js';
-import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut } from './timeline.js';
+import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut, onSelect } from './timeline.js';
 import { initToolbar } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
@@ -83,6 +84,9 @@ document.getElementById('btn-export').addEventListener('click', () => exportMixU
 initTimeline(projectState).then(() => {
   console.log('Timeline ready');
   initMinimap(document.getElementById('playlist-container'));
+  onSelect((start, end) => {
+    setLoopRegion(start, end);
+  });
 }).catch(err => {
   console.error('Timeline init failed:', err);
 });

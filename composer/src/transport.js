@@ -3,6 +3,7 @@ import * as Tone from 'tone';
 let isPlaying = false;
 let onPlayCallback = null;
 let onStopCallback = null;
+let loopRegion = { start: 0, end: 0 };
 
 export function initTransport(bpm) {
   Tone.getTransport().bpm.value = bpm;
@@ -11,13 +12,26 @@ export function initTransport(bpm) {
 
 export function setBpm(bpm) { Tone.getTransport().bpm.value = bpm; }
 
-export function setLoop(enabled, startTime = 0, endTime = 0) {
+export function setLoop(enabled) {
   const transport = Tone.getTransport();
   transport.loop = enabled;
-  if (enabled && endTime > startTime) {
-    transport.loopStart = startTime;
-    transport.loopEnd = endTime;
+  if (enabled && loopRegion.end > loopRegion.start) {
+    transport.loopStart = loopRegion.start;
+    transport.loopEnd = loopRegion.end;
   }
+}
+
+export function setLoopRegion(start, end) {
+  loopRegion = { start, end };
+  const transport = Tone.getTransport();
+  if (transport.loop && end > start) {
+    transport.loopStart = start;
+    transport.loopEnd = end;
+  }
+}
+
+export function getLoopRegion() {
+  return loopRegion;
 }
 
 export function onPlay(callback) { onPlayCallback = callback; }

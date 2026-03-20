@@ -4,6 +4,7 @@ import { onPlay, onStop } from './transport.js';
 
 let playlist = null;
 let ee = null;
+let onSelectCallback = null;
 
 export async function initTimeline(projectState) {
   const container = document.getElementById('playlist-container');
@@ -28,6 +29,10 @@ export async function initTimeline(projectState) {
 
   ee = playlist.getEventEmitter();
 
+  ee.on('select', (start, end) => {
+    if (onSelectCallback) onSelectCallback(start, end);
+  });
+
   onPlay(() => { if (ee) ee.emit('play'); });
   onStop(() => { if (ee) ee.emit('stop'); });
 
@@ -50,6 +55,10 @@ export function zoomOut() {
 
 export function getPlaylist() {
   return playlist;
+}
+
+export function onSelect(callback) {
+  onSelectCallback = callback;
 }
 
 export function addTrackToTimeline(filename, startTime = 0) {
