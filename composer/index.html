@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Composer — RC Stable Audio Tools</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="transport">
+      <div class="transport-left">
+        <span class="logo">COMPOSER</span>
+        <button id="btn-play">&#9654; Play</button>
+        <button id="btn-stop">&#9632; Stop</button>
+        <label><input type="checkbox" id="chk-loop"> Loop</label>
+      </div>
+      <div class="transport-center">
+        <label>BPM: <input type="number" id="input-bpm" value="120" min="40" max="300" step="1"></label>
+        <label>Key:
+          <select id="select-key-note">
+            <option>C</option><option>C#</option><option>D</option><option>D#</option>
+            <option>E</option><option>F</option><option>F#</option><option>G</option>
+            <option>G#</option><option>A</option><option>A#</option><option>B</option>
+          </select>
+          <select id="select-key-scale">
+            <option>minor</option><option>major</option>
+          </select>
+        </label>
+        <label>Master: <input type="range" id="input-master-vol" min="0" max="1" step="0.01" value="1"></label>
+      </div>
+      <div class="transport-right">
+        <button id="btn-export">Export Mix</button>
+        <button id="btn-save">Save Project</button>
+        <button id="btn-load">Load Project</button>
+      </div>
+    </header>
+    <div id="main">
+      <aside id="sidebar">
+        <div id="generate-panel">
+          <h3>Generate</h3>
+          <textarea id="gen-prompt" placeholder="Enter prompt... (e.g. funky bass groove)" rows="3"></textarea>
+          <div class="gen-controls">
+            <label>Bars: <select id="gen-bars"><option>4</option><option>8</option></select></label>
+            <label>Steps: <input type="number" id="gen-steps" value="100" min="10" max="250" step="10"></label>
+          </div>
+          <button id="btn-generate">Generate</button>
+          <div id="gen-status"></div>
+        </div>
+        <div id="clip-library">
+          <h3>Clip Library</h3>
+          <button id="btn-refresh-clips">Refresh</button>
+          <ul id="clip-list"></ul>
+        </div>
+      </aside>
+      <section id="timeline-container">
+        <div id="track-controls"></div>
+        <div id="playlist-container"></div>
+      </section>
+    </div>
+  </div>
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
