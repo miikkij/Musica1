@@ -1,6 +1,6 @@
 import './style.css';
 import { refreshClipLibrary, initGeneratePanel } from './sidebar.js';
-import { initToolbar } from './toolbar.js';
+import { initToolbar, setMode as setToolbarMode } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
 import { initMinimap, renderMinimap } from './minimap.js';
@@ -15,6 +15,7 @@ import {
   getTracks,
   getSelectedClip,
   getSelectedTrack,
+  getIsPlaying,
   setMode,
   setSnapBpm,
   setProjectBpm,
@@ -238,24 +239,60 @@ initContextMenu(async (action) => {
   }
 });
 
-// ── Delete key ────────────────────────────────────────────────────────────────
+// ── Keyboard shortcuts ────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
+  // Skip when typing in inputs
   if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') return;
-  if (e.key === 'Delete' || e.key === 'Backspace') {
-    const clip = getSelectedClip();
-    if (clip) {
-      removeClip(clip.id);
-      autoSave();
-    }
-  }
-  // Space = play/stop
-  if (e.key === ' ') {
-    e.preventDefault();
-    const tracks = getTracks();
-    if (tracks.length > 0) {
-      // Toggle play/stop
-      play();
-    }
+
+  switch (e.key) {
+    // Space = play/stop toggle
+    case ' ':
+      e.preventDefault();
+      if (getIsPlaying()) stopPlayback();
+      else play();
+      break;
+
+    // Delete/Backspace = remove selected clip
+    case 'Delete':
+    case 'Backspace':
+      e.preventDefault();
+      const clip = getSelectedClip();
+      if (clip) { removeClip(clip.id); autoSave(); }
+      break;
+
+    // 1/2/3 = switch mode
+    case '1': setToolbarMode('cursor'); break;
+    case '2': setToolbarMode('move'); break;
+    case '3': setToolbarMode('select'); break;
+
+    // +/- = zoom
+    case '+':
+    case '=':
+      zoomIn(); break;
+    case '-':
+      zoomOut(); break;
+
+    // D = duplicate selected clip
+    case 'd':
+    case 'D':
+      if (!e.ctrlKey) {
+        const sel = getSelectedClip();
+        if (sel) { duplicateClip(sel.id); autoSave(); }
+      }
+      break;
+
+    // Home = seek to start
+    case 'Home':
+      seek(0); break;
+
+    // Ctrl+S = save project
+    case 's':
+    case 'S':
+      if (e.ctrlKey || e.metaKey) {
+        e.preventDefault();
+        document.getElementById('btn-save').click();
+      }
+      break;
   }
 });
 

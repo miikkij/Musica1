@@ -209,6 +209,7 @@ export function setMode(m) { mode = m; draw(); }
 export function setSnapBpm(enabled) { snapToBpm = enabled; }
 export function setProjectBpm(bpm) { projectBpm = bpm; draw(); }
 export function setMasterVolume(v) { masterVolume = v; if (masterGain) masterGain.gain.value = v; }
+export function getIsPlaying() { return isPlaying; }
 export function setOnSelect(cb) { onSelectCallback = cb; }
 export function setOnChange(cb) { onChangeCallback = cb; }
 
