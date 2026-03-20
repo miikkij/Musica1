@@ -312,11 +312,15 @@ export function play(fromTime) {
       const clipEnd = clip.startTime + totalDuration;
       if (clipEnd <= startFrom) continue;
 
-      for (let loop = 0; loop < clip.loopCount; loop++) {
+      // Schedule enough full/partial loops to fill totalDuration
+      const fullLoops = Math.ceil(clip.loopCount);
+      for (let loop = 0; loop < fullLoops; loop++) {
         const loopStart = clip.startTime + loop * clip.duration;
-        const loopEnd = loopStart + clip.duration;
+        // Don't play past the total clip end
+        const loopEnd = Math.min(loopStart + clip.duration, clipEnd);
+        const loopDur = loopEnd - loopStart;
 
-        if (loopEnd <= startFrom) continue;
+        if (loopEnd <= startFrom || loopDur <= 0) continue;
 
         const source = audioCtx.createBufferSource();
         source.buffer = clip.buffer;
@@ -325,7 +329,7 @@ export function play(fromTime) {
         const offset = Math.max(0, startFrom - loopStart);
         const when = Math.max(0, loopStart - startFrom);
 
-        source.start(audioCtx.currentTime + when, offset, clip.duration - offset);
+        source.start(audioCtx.currentTime + when, offset, loopDur - offset);
         scheduledSources.push(source);
       }
     }
@@ -765,12 +769,9 @@ function onMouseMove(e) {
       const deltaX = pos.x - dragState.startX;
       const deltaSec = deltaX / pixelsPerSecond;
       const originalTotalDur = dragState.clip.duration * dragState.originalLoopCount;
-      const newTotalDur = Math.max(dragState.clip.duration, originalTotalDur + deltaSec);
-      // Allow fractional loop counts for smooth visual feedback
-      const rawLoopCount = newTotalDur / dragState.clip.duration;
-      // Snap to whole loops on release, show fractional during drag
-      dragState.clip.loopCount = rawLoopCount;
-      dragState._isDragging = true;
+      // Minimum 0.5s, no maximum — audio loops to fill
+      const newTotalDur = Math.max(0.5, originalTotalDur + deltaSec);
+      dragState.clip.loopCount = newTotalDur / dragState.clip.duration;
       draw();
     }
   } else if (selectRegion && mode === 'select') {
@@ -796,10 +797,6 @@ function onMouseMove(e) {
 
 function onMouseUp(e) {
   if (dragState) {
-    // Snap loop count to whole number on release
-    if (dragState.type === 'loop' && dragState.clip) {
-      dragState.clip.loopCount = Math.max(1, Math.round(dragState.clip.loopCount));
-    }
     notifyChange();
     dragState = null;
     draw();
