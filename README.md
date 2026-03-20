@@ -57,11 +57,34 @@ This repo inherits all features from RC Stable Audio Tools:
   <img src="https://i.imgur.com/ApH5SOM.gif" alt="Midi Converter Example Gif" width="75%">
 </p>
 
-## 🚀 Installation
+## 🚀 Quick Start (New Users)
+
+```bash
+git clone https://github.com/miikkij/Musica1.git
+cd Musica1
+```
+
+Then run the setup script — it checks everything and installs what's needed:
+
+| Platform | Command |
+|----------|---------|
+| Windows  | Double-click `setup.bat` or run `python setup_musica1.py` |
+| macOS    | `chmod +x setup.sh && ./setup.sh` |
+| Linux    | `chmod +x setup.sh && ./setup.sh` |
+
+The setup script will:
+1. Check Python, uv, Node.js, Git, GPU/CUDA
+2. Create a virtual environment and install all Python packages
+3. Build the Composer frontend
+4. Check for AI models
+
+After setup, start Musica1 with `start.bat` (Windows) or run both services manually.
+
+---
+
+## 🔧 Manual Installation
 
 ### 📥 Clone the Repository
-
-First, clone the repository to your local machine:
 
 ```bash
 git clone https://github.com/miikkij/Musica1.git
