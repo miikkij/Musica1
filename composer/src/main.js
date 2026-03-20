@@ -31,15 +31,56 @@ import { loopClip } from './api.js';
 
 console.log('Composer app loaded');
 
+const STORAGE_KEY = 'composer_autosave';
+
+/** Load saved state from localStorage, or use defaults */
+function loadSavedState() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved) return JSON.parse(saved);
+  } catch (e) {
+    console.warn('Failed to load saved state:', e);
+  }
+  return null;
+}
+
+const saved = loadSavedState();
+
 /** Shared project state — updated as user changes transport controls */
 const projectState = {
-  bpm: 120,
-  keyNote: 'C',
-  keyScale: 'minor',
-  masterVolume: 1,
-  targetLength: null,
-  tracks: [],
+  bpm: saved?.bpm ?? 120,
+  keyNote: saved?.keyNote ?? 'C',
+  keyScale: saved?.keyScale ?? 'minor',
+  masterVolume: saved?.masterVolume ?? 1,
+  targetLength: saved?.targetLength ?? null,
+  tracks: saved?.tracks ?? [],
 };
+
+/** Auto-save project state + track info to localStorage */
+function autoSave() {
+  try {
+    const tracksInfo = getTracksInfo();
+    const state = {
+      ...projectState,
+      tracksInfo, // waveform-playlist track positions/names for reload
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    // localStorage full or unavailable — ignore silently
+  }
+}
+
+// Auto-save every 3 seconds
+setInterval(autoSave, 3000);
+
+// ── Restore UI from saved state ───────────────────────────────────────────────
+document.getElementById('input-bpm').value = projectState.bpm;
+document.getElementById('select-key-note').value = projectState.keyNote;
+document.getElementById('select-key-scale').value = projectState.keyScale;
+document.getElementById('input-master-vol').value = projectState.masterVolume;
+document.getElementById('input-length').value = projectState.targetLength
+  ? `${Math.floor(projectState.targetLength / 60)}:${String(projectState.targetLength % 60).padStart(2, '0')}`
+  : 'auto';
 
 // ── Transport init ────────────────────────────────────────────────────────────
 initTransport(projectState.bpm);
@@ -52,6 +93,7 @@ bpmInput.addEventListener('input', () => {
     projectState.bpm = val;
     setBpm(val);
     setProjectBpm(val);
+    autoSave();
   }
 });
 
@@ -61,15 +103,18 @@ const keyScaleSelect = document.getElementById('select-key-scale');
 
 keyNoteSelect.addEventListener('change', () => {
   projectState.keyNote = keyNoteSelect.value;
+  autoSave();
 });
 keyScaleSelect.addEventListener('change', () => {
   projectState.keyScale = keyScaleSelect.value;
+  autoSave();
 });
 
 // ── Master volume sync ────────────────────────────────────────────────────────
 const masterVolInput = document.getElementById('input-master-vol');
 masterVolInput.addEventListener('input', () => {
   projectState.masterVolume = parseFloat(masterVolInput.value);
+  autoSave();
 });
 
 // ── Song length sync ─────────────────────────────────────────────────────────
@@ -132,6 +177,17 @@ initTimeline(projectState).then(() => {
     setLoopRegion(start, end);
   });
 
+  // Restore tracks from saved state
+  if (saved?.tracksInfo && saved.tracksInfo.length > 0) {
+    console.log(`Restoring ${saved.tracksInfo.length} tracks from autosave`);
+    // Reload each saved track by finding its WAV in the clip library
+    for (const track of saved.tracksInfo) {
+      // Track name was stored without .wav extension
+      const filename = track.name.endsWith('.wav') ? track.name : track.name + '.wav';
+      addTrackToTimeline(filename, track.start || 0);
+    }
+  }
+
   // Periodically update minimap with track info
   setInterval(() => {
     const tracks = getTracksInfo();
@@ -159,10 +215,12 @@ initContextMenu(async (action) => {
   switch (action) {
     case 'delete':
       removeActiveTrack();
+      autoSave();
       break;
 
     case 'duplicate':
       duplicateActiveTrack();
+      autoSave();
       break;
 
     case 'loop2':
