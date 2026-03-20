@@ -1,0 +1,103 @@
+<h2>Clip Looping & Multi-Clip Tracks</h2>
+<p class="subtitle">How looping and multi-clip placement works</p>
+
+<div class="mockup">
+  <div class="mockup-header">Clip Looping — Drag Edge to Repeat</div>
+  <div class="mockup-body" style="padding: 20px;">
+
+    <!-- Before looping -->
+    <div style="color: #888; font-size: 11px; margin-bottom: 4px;">BEFORE: Single 4-bar drum clip</div>
+    <div style="display: flex; align-items: center; height: 50px; background: #1a1a2e; border-radius: 4px; margin-bottom: 16px; position: relative;">
+      <div style="width: 180px; height: 40px; margin-left: 20px; background: linear-gradient(90deg, #e94560 0%, #c73652 100%); border-radius: 3px; display: flex; align-items: center; padding: 0 8px; position: relative;">
+        <span style="font-size: 10px; color: #fff; font-weight: 600;">drums_120bpm.wav</span>
+        <!-- drag handle -->
+        <div style="position: absolute; right: -2px; top: 0; bottom: 0; width: 6px; background: #fff; opacity: 0.5; border-radius: 0 3px 3px 0; cursor: ew-resize;"></div>
+      </div>
+      <div style="color: #666; font-size: 11px; margin-left: 8px;">&#8592; drag right edge</div>
+    </div>
+
+    <!-- After looping -->
+    <div style="color: #888; font-size: 11px; margin-bottom: 4px;">AFTER: Same clip looped x4 (drag edge or right-click → Loop x4)</div>
+    <div style="display: flex; align-items: center; height: 50px; background: #1a1a2e; border-radius: 4px; margin-bottom: 24px;">
+      <div style="display: flex; margin-left: 20px; height: 40px;">
+        <div style="width: 180px; height: 40px; background: linear-gradient(90deg, #e94560 0%, #c73652 100%); border-radius: 3px 0 0 3px; display: flex; align-items: center; padding: 0 8px; border-right: 1px dashed rgba(255,255,255,0.3);">
+          <span style="font-size: 10px; color: #fff; font-weight: 600;">drums_120bpm.wav</span>
+        </div>
+        <div style="width: 180px; height: 40px; background: linear-gradient(90deg, #c73652 0%, #e94560 100%); display: flex; align-items: center; padding: 0 8px; border-right: 1px dashed rgba(255,255,255,0.3); opacity: 0.85;">
+          <span style="font-size: 10px; color: rgba(255,255,255,0.6);">repeat 2</span>
+        </div>
+        <div style="width: 180px; height: 40px; background: linear-gradient(90deg, #e94560 0%, #c73652 100%); display: flex; align-items: center; padding: 0 8px; border-right: 1px dashed rgba(255,255,255,0.3); opacity: 0.7;">
+          <span style="font-size: 10px; color: rgba(255,255,255,0.6);">repeat 3</span>
+        </div>
+        <div style="width: 180px; height: 40px; background: linear-gradient(90deg, #c73652 0%, #e94560 100%); border-radius: 0 3px 3px 0; display: flex; align-items: center; padding: 0 8px; opacity: 0.6; position: relative;">
+          <span style="font-size: 10px; color: rgba(255,255,255,0.6);">repeat 4</span>
+          <div style="position: absolute; right: -2px; top: 0; bottom: 0; width: 6px; background: #fff; opacity: 0.5; border-radius: 0 3px 3px 0; cursor: ew-resize;"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="mockup" style="margin-top: 20px;">
+  <div class="mockup-header">Multi-Clip Track — Song Structure</div>
+  <div class="mockup-body" style="padding: 20px;">
+
+    <!-- Bar ruler -->
+    <div style="display: flex; height: 20px; background: #16213e; border-bottom: 1px solid #333; font-size: 9px; color: #888; margin-bottom: 2px;">
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">1</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">5</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">9</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">13</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">17</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">21</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">25</div>
+      <div style="width: 60px; text-align: center; border-right: 1px solid #333;">29</div>
+      <div style="width: 60px; text-align: center;">33</div>
+    </div>
+    <div style="display: flex; height: 14px; background: #1a1a2e; font-size: 8px; color: #666; margin-bottom: 8px; align-items: center;">
+      <div style="width: 120px; text-align: center;">INTRO</div>
+      <div style="width: 120px; text-align: center;">VERSE</div>
+      <div style="width: 120px; text-align: center;">CHORUS</div>
+      <div style="width: 120px; text-align: center;">VERSE 2</div>
+      <div style="width: 60px; text-align: center;">OUTRO</div>
+    </div>
+
+    <!-- Drums track -->
+    <div style="display: flex; align-items: center; height: 44px; background: #1e1e3a; border-bottom: 1px solid #333; margin-bottom: 2px;">
+      <div style="width: 60px; font-size: 10px; color: #e0e0e0; padding: 0 6px; font-weight: 600;">Drums</div>
+      <div style="flex: 1; display: flex; height: 34px; position: relative; gap: 2px;">
+        <div style="width: 118px; background: #e94560; border-radius: 3px; opacity: 0.8; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">intro_beat (looped)</span></div>
+        <div style="width: 238px; background: #e94560; border-radius: 3px; opacity: 0.9; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">main_beat (looped x4)</span></div>
+        <div style="width: 118px; background: #e94560; border-radius: 3px; opacity: 0.7; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">outro_fill</span></div>
+      </div>
+    </div>
+
+    <!-- Bass track -->
+    <div style="display: flex; align-items: center; height: 44px; background: #1e1e3a; border-bottom: 1px solid #333; margin-bottom: 2px;">
+      <div style="width: 60px; font-size: 10px; color: #e0e0e0; padding: 0 6px; font-weight: 600;">Bass</div>
+      <div style="flex: 1; display: flex; height: 34px; position: relative;">
+        <div style="width: 118px;"></div>
+        <div style="width: 238px; background: #533483; border-radius: 3px; opacity: 0.9; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">bass_groove (looped x4)</span></div>
+        <div style="width: 118px; background: #533483; border-radius: 3px; opacity: 0.7; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">bass_outro</span></div>
+      </div>
+    </div>
+
+    <!-- Melody track -->
+    <div style="display: flex; align-items: center; height: 44px; background: #1e1e3a; border-bottom: 1px solid #333;">
+      <div style="width: 60px; font-size: 10px; color: #e0e0e0; padding: 0 6px; font-weight: 600;">Melody</div>
+      <div style="flex: 1; display: flex; height: 34px; position: relative;">
+        <div style="width: 118px;"></div>
+        <div style="width: 118px;"></div>
+        <div style="width: 118px; background: #0f3460; border-radius: 3px; opacity: 0.9; display: flex; align-items: center; padding: 0 6px;"><span style="font-size: 9px; color: #fff;">chorus_melody</span></div>
+      </div>
+    </div>
+
+    <div style="color: #888; font-size: 11px; margin-top: 12px; text-align: center;">
+      Drop clips onto existing tracks at different positions to build song sections.
+      <br>Each clip can be independently looped, moved, or deleted.
+    </div>
+  </div>
+</div>
+
+<p class="subtitle" style="margin-top: 1rem;">Does this looping visual (dashed repeat markers) and multi-clip arrangement model look right?</p>
