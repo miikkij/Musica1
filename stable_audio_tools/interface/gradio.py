@@ -915,6 +915,7 @@ def create_sampling_ui(model_config, initial_ckpt, inpainting=False):
         with gr.Column():
             audio_output = gr.Audio(label="Output audio", interactive=False)
             send_to_init_button = gr.Button("Send to Style Transfer", scale=1)
+            send_to_composer_button = gr.Button("Send to Composer", scale=1)
             with gr.Accordion("AI Style Transfer", open=False):
                 init_audio_checkbox = gr.Checkbox(label="Use for Style Transfer")
                 init_audio_input = gr.Audio(label="Input audio")
@@ -995,6 +996,29 @@ def create_sampling_ui(model_config, initial_ckpt, inpainting=False):
     )
 
     send_to_init_button.click(fn=lambda audio: audio, inputs=[audio_output], outputs=[init_audio_input])
+
+    send_to_composer_button.click(
+        fn=lambda audio: audio,
+        inputs=[audio_output],
+        outputs=[audio_output],
+        _js="""
+        (audio) => {
+            if (audio) {
+                const filename = audio.split('/').pop().split('\\\\').pop();
+                fetch('http://localhost:8000/api/clips/notify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({file: filename})
+                }).then(() => {
+                    alert('Sent to Composer!');
+                }).catch(() => {
+                    alert('Composer not running. Start it on port 8000.');
+                });
+            }
+            return audio;
+        }
+        """
+    )
 
     load_model_button.click(
         fn=lambda x, y, q: load_model_action(x, y, ckpt_files, q),
