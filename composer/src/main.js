@@ -12,6 +12,7 @@ import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut } f
 import { initToolbar } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
+import { initMinimap } from './minimap.js';
 
 console.log('Composer app loaded');
 
@@ -81,6 +82,7 @@ document.getElementById('btn-export').addEventListener('click', () => exportMixU
 // ── Timeline init ─────────────────────────────────────────────────────────────
 initTimeline(projectState).then(() => {
   console.log('Timeline ready');
+  initMinimap(document.getElementById('playlist-container'));
 }).catch(err => {
   console.error('Timeline init failed:', err);
 });
