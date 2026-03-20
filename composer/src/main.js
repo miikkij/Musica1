@@ -1,3 +1,4 @@
+import 'waveform-playlist/styles/playlist.css';
 import './style.css';
 import { refreshClipLibrary, initGeneratePanel } from './sidebar.js';
 import {
