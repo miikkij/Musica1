@@ -17,6 +17,7 @@ import {
   zoomOut,
   onSelect,
   getActiveTrack,
+  getTrackFilename,
   removeActiveTrack,
   duplicateActiveTrack,
   getTracksInfo,
@@ -28,6 +29,7 @@ import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
 import { initMinimap, renderMinimap } from './minimap.js';
 import { loopClip } from './api.js';
+import { toast } from './toast.js';
 
 console.log('Composer app loaded');
 
@@ -227,24 +229,28 @@ initContextMenu(async (action) => {
     case 'loop4':
     case 'loopfill': {
       if (!track) {
-        console.warn('No active track to loop');
+        toast('No active track to loop — click a track first', 'warning');
         break;
       }
-      const name = track.getName ? track.getName() : '';
-      const filename = name.endsWith('.wav') ? name : name + '.wav';
+      const filename = getTrackFilename(track);
+      if (!filename) {
+        toast('Cannot determine clip filename', 'error');
+        break;
+      }
       const repeatCount = action === 'loop2' ? 2 : action === 'loop4' ? 4 : 8;
 
       try {
+        toast(`Looping ${filename} x${repeatCount}...`, 'info', 2000);
         const result = await loopClip(filename, repeatCount);
         if (result.output_filename) {
-          // Add the looped clip as a new track at the same start position
           const startTime = track.getStartTime();
           removeActiveTrack();
           addTrackToTimeline(result.output_filename, startTime);
+          toast(`Loop created: ${result.output_filename}`, 'success');
         }
       } catch (err) {
         console.error('Loop failed:', err);
-        alert('Loop failed: ' + err.message);
+        toast('Loop failed: ' + err.message, 'error');
       }
       break;
     }
