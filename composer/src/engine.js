@@ -581,7 +581,8 @@ function drawClip(clip, track, trackY) {
     ctx.rect(x1, clipY, clipW, clipH);
     ctx.clip();
 
-    for (let loop = 0; loop < clip.loopCount; loop++) {
+    const loopIterations = Math.ceil(clip.loopCount);
+    for (let loop = 0; loop < loopIterations; loop++) {
       const loopX = x1 + loop * oneDurPx;
 
       // Loop divider line (after first)
@@ -763,9 +764,13 @@ function onMouseMove(e) {
     } else if (dragState.type === 'loop') {
       const deltaX = pos.x - dragState.startX;
       const deltaSec = deltaX / pixelsPerSecond;
-      const newTotalDur = dragState.clip.duration * dragState.originalLoopCount + deltaSec;
-      const newLoopCount = Math.max(1, Math.round(newTotalDur / dragState.clip.duration));
-      dragState.clip.loopCount = newLoopCount;
+      const originalTotalDur = dragState.clip.duration * dragState.originalLoopCount;
+      const newTotalDur = Math.max(dragState.clip.duration, originalTotalDur + deltaSec);
+      // Allow fractional loop counts for smooth visual feedback
+      const rawLoopCount = newTotalDur / dragState.clip.duration;
+      // Snap to whole loops on release, show fractional during drag
+      dragState.clip.loopCount = rawLoopCount;
+      dragState._isDragging = true;
       draw();
     }
   } else if (selectRegion && mode === 'select') {
@@ -791,6 +796,10 @@ function onMouseMove(e) {
 
 function onMouseUp(e) {
   if (dragState) {
+    // Snap loop count to whole number on release
+    if (dragState.type === 'loop' && dragState.clip) {
+      dragState.clip.loopCount = Math.max(1, Math.round(dragState.clip.loopCount));
+    }
     notifyChange();
     dragState = null;
     draw();
