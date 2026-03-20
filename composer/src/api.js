@@ -54,7 +54,7 @@ export async function detectBpm(filename) {
  * @param {number|null} params.seed
  * @param {number} params.steps
  */
-export async function generateClip({ prompt, bars, bpm, key, seed = null, steps = 100 }) {
+export async function generateClip({ prompt, bars, bpm, key, seed = -1, steps = 100 }) {
   const res = await fetch(`${BASE}/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

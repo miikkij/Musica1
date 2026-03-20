@@ -76,7 +76,11 @@ document.getElementById('btn-load').addEventListener('click', () => loadProjectU
 document.getElementById('btn-export').addEventListener('click', () => exportMixUI(projectState));
 
 // ── Timeline init ─────────────────────────────────────────────────────────────
-initTimeline(projectState);
+initTimeline(projectState).then(() => {
+  console.log('Timeline ready');
+}).catch(err => {
+  console.error('Timeline init failed:', err);
+});
 
 // ── Drop zone: drag clips from sidebar onto timeline ──────────────────────────
 const timelineContainer = document.getElementById('timeline-container');
