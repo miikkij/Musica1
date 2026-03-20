@@ -46,19 +46,27 @@ export async function detectBpm(filename) {
 
 /**
  * POST /api/generate — proxy to Gradio to generate a new clip
- * @param {Object} params
- * @param {string} params.prompt
- * @param {number} params.bars
- * @param {number} params.bpm
- * @param {string} params.key
- * @param {number|null} params.seed
- * @param {number} params.steps
+ * @param {Object} params — all generation parameters
  */
-export async function generateClip({ prompt, bars, bpm, key, seed = -1, steps = 100 }) {
+export async function generateClip(params) {
+  const body = {
+    prompt: params.prompt,
+    bars: params.bars ?? 4,
+    bpm: params.bpm ?? 120,
+    key: params.key ?? 'C minor',
+    seed: params.seed ?? -1,
+    steps: params.steps ?? 100,
+    cfg_scale: params.cfg_scale ?? 7.0,
+    sampler_type: params.sampler_type ?? 'dpmpp-3m-sde',
+    sigma_min: params.sigma_min ?? 0.03,
+    sigma_max: params.sigma_max ?? 500.0,
+    cfg_rescale: params.cfg_rescale ?? 0.0,
+    negative_prompt: params.negative_prompt ?? '',
+  };
   const res = await fetch(`${BASE}/generate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ prompt, bars, bpm, key, seed, steps }),
+    body: JSON.stringify(body),
   });
   return handleResponse(res);
 }

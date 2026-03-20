@@ -297,6 +297,21 @@ select:focus {
   color: #4caf82;
 }
 
+.btn-sm {
+  background: var(--accent3);
+  color: var(--text);
+  border: none;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.btn-sm:hover {
+  opacity: 0.85;
+}
+
 /* Clip Library */
 #clip-library {
   padding: 12px;

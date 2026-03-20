@@ -196,3 +196,53 @@ export function dialogSelect(title, options) {
     });
   });
 }
+
+/**
+ * Show a dialog with custom HTML content and action buttons.
+ * @param {string} title
+ * @param {string} htmlContent
+ * @param {Array<{label: string, primary?: boolean, action: Function}>} buttons
+ */
+export function showDialog(title, htmlContent, buttons = []) {
+  const overlay = document.createElement('div');
+  overlay.className = 'dialog-overlay';
+
+  const dialog = document.createElement('div');
+  dialog.className = 'dialog-box dialog-wide';
+
+  const titleEl = document.createElement('div');
+  titleEl.className = 'dialog-title';
+  titleEl.textContent = title;
+
+  const body = document.createElement('div');
+  body.className = 'dialog-body';
+  body.innerHTML = htmlContent;
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:8px;margin-top:12px;justify-content:flex-end;';
+
+  dialog.appendChild(titleEl);
+  dialog.appendChild(body);
+
+  function close() { overlay.remove(); }
+
+  for (const btn of buttons) {
+    const el = document.createElement('button');
+    el.className = btn.primary ? 'dialog-btn dialog-ok' : 'dialog-btn dialog-cancel';
+    el.textContent = btn.label;
+    el.addEventListener('click', () => {
+      btn.action();
+      close();
+    });
+    btnRow.appendChild(el);
+  }
+
+  dialog.appendChild(btnRow);
+  overlay.appendChild(dialog);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+  document.addEventListener('keydown', function handler(e) {
+    if (e.key === 'Escape') { close(); document.removeEventListener('keydown', handler); }
+  });
+}

@@ -39,11 +39,20 @@
     <div id="main">
       <aside id="sidebar">
         <div id="generate-panel">
-          <h3>Generate</h3>
-          <textarea id="gen-prompt" placeholder="Enter prompt... (e.g. funky bass groove)" rows="3"></textarea>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px;">
+            <h3 style="margin:0">Generate</h3>
+            <div style="display:flex;gap:4px;">
+              <button id="btn-gen-help" class="btn-sm" title="Prompt guide">?</button>
+              <button id="btn-random-prompt" class="btn-sm" title="Random prompt">&#127922;</button>
+            </div>
+          </div>
+          <textarea id="gen-prompt" placeholder="Enter prompt... (e.g. Rhodes Piano, Warm, Rich, Chord Progression)" rows="3"></textarea>
           <div class="gen-controls">
             <label>Bars: <select id="gen-bars"><option>4</option><option>8</option></select></label>
-            <label>Steps: <input type="number" id="gen-steps" value="100" min="10" max="250" step="10"></label>
+          </div>
+          <div style="display:flex;gap:4px;margin-bottom:6px;">
+            <button id="btn-gen-options" class="btn-sm" style="flex:1">Options</button>
+            <span id="gen-opts-summary" style="flex:2;color:#888;font-size:10px;align-self:center;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">defaults</span>
           </div>
           <button id="btn-generate">Generate</button>
           <div id="gen-status"></div>
