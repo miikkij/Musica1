@@ -102,6 +102,50 @@ export function dialogPrompt(title, defaultValue = '') {
 }
 
 /**
+ * Show an info dialog with HTML content and an OK button.
+ * @param {string} title
+ * @param {string} htmlContent
+ * @returns {Promise<void>}
+ */
+export function dialogInfo(title, htmlContent) {
+  return new Promise((resolve) => {
+    const overlay = document.createElement('div');
+    overlay.className = 'dialog-overlay';
+
+    const dialog = document.createElement('div');
+    dialog.className = 'dialog-box dialog-wide';
+
+    const titleEl = document.createElement('div');
+    titleEl.className = 'dialog-title';
+    titleEl.textContent = title;
+
+    const body = document.createElement('div');
+    body.className = 'dialog-body';
+    body.innerHTML = htmlContent;
+
+    const okBtn = document.createElement('button');
+    okBtn.className = 'dialog-btn dialog-ok';
+    okBtn.textContent = 'OK';
+    okBtn.style.marginTop = '12px';
+
+    dialog.appendChild(titleEl);
+    dialog.appendChild(body);
+    dialog.appendChild(okBtn);
+    overlay.appendChild(dialog);
+    document.body.appendChild(overlay);
+
+    function close() { overlay.remove(); resolve(); }
+
+    okBtn.addEventListener('click', close);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
+    document.addEventListener('keydown', function handler(e) {
+      if (e.key === 'Escape' || e.key === 'Enter') { close(); document.removeEventListener('keydown', handler); }
+    });
+    okBtn.focus();
+  });
+}
+
+/**
  * Show a selection dialog (replaces prompt() with numbered list).
  * @param {string} title
  * @param {string[]} options

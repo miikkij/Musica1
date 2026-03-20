@@ -4,7 +4,7 @@ import { initToolbar, setMode as setToolbarMode } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
 import { initMinimap, renderMinimap } from './minimap.js';
-import { toast } from './toast.js';
+import { toast, dialogInfo } from './toast.js';
 import {
   initEngine,
   addTrack,
@@ -293,8 +293,66 @@ document.addEventListener('keydown', (e) => {
         document.getElementById('btn-save').click();
       }
       break;
+
+    // H = help
+    case 'h':
+    case 'H':
+      showHelp();
+      break;
   }
 });
+
+function showHelp() {
+  dialogInfo('Composer — Help', `
+    <h4>Modes</h4>
+    <table>
+      <tr><td><kbd>1</kbd></td><td>Cursor mode — click timeline to seek</td></tr>
+      <tr><td><kbd>2</kbd></td><td>Move mode — drag clips, resize edges, move between tracks</td></tr>
+      <tr><td><kbd>3</kbd></td><td>Select mode — drag to select a region</td></tr>
+    </table>
+
+    <h4>Playback</h4>
+    <table>
+      <tr><td><kbd>Space</kbd></td><td>Play / Stop</td></tr>
+      <tr><td><kbd>Home</kbd></td><td>Seek to start</td></tr>
+      <tr><td>Click ruler</td><td>Seek to position</td></tr>
+    </table>
+
+    <h4>Editing</h4>
+    <table>
+      <tr><td><kbd>D</kbd></td><td>Duplicate selected clip</td></tr>
+      <tr><td><kbd>Del</kbd></td><td>Delete selected clip</td></tr>
+      <tr><td>Right-click clip</td><td>Context menu (loop, duplicate, delete)</td></tr>
+      <tr><td>Double-click header</td><td>Rename track</td></tr>
+    </table>
+
+    <h4>Zoom & Navigation</h4>
+    <table>
+      <tr><td><kbd>+</kbd> / <kbd>-</kbd></td><td>Zoom in / out</td></tr>
+      <tr><td><kbd>Ctrl</kbd>+scroll</td><td>Zoom in / out</td></tr>
+      <tr><td>Scroll</td><td>Scroll timeline left/right</td></tr>
+    </table>
+
+    <h4>Track Controls</h4>
+    <table>
+      <tr><td><kbd>M</kbd> on header</td><td>Mute/unmute track</td></tr>
+      <tr><td><kbd>S</kbd> on header</td><td>Solo/unsolo track</td></tr>
+      <tr><td>Volume bar</td><td>Click to set track volume</td></tr>
+    </table>
+
+    <h4>Project</h4>
+    <table>
+      <tr><td><kbd>Ctrl+S</kbd></td><td>Save project</td></tr>
+      <tr><td><kbd>H</kbd></td><td>This help dialog</td></tr>
+    </table>
+
+    <h4>Tips</h4>
+    <p>Drag clips from the Clip Library onto existing tracks or below all tracks to create a new one.</p>
+    <p>In Move mode, drag the right edge of a clip to extend it — audio loops to fill.</p>
+    <p>Snap BPM aligns clips to bar boundaries. Toggle it in the toolbar.</p>
+    <p>State auto-saves every 3 seconds and restores on page reload.</p>
+  `);
+}
 
 // ── Ctrl+scroll zoom on timeline container ───────────────────────────────────
 playlistContainer.addEventListener('wheel', (e) => {
