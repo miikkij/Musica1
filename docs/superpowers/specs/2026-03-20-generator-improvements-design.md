@@ -11,7 +11,16 @@ Three improvements to the Composer's generate panel: prompt autocomplete with ke
 
 ### Tag Dictionary
 
-Reuse the existing tag arrays from `generateRandomPrompt()` in `sidebar.js`, organized by category:
+Extract the existing tag arrays from inside `generateRandomPrompt()` in `sidebar.js` to module-level constants so both the random prompt function and autocomplete logic can share them:
+
+```js
+const TAG_DICTIONARY = {
+  instrument: ['Synth Lead', 'Synth Bass', 'Rhodes Piano', ...],
+  timbre: ['Warm', 'Bright', 'Dark', ...],
+  fx: ['Low Reverb', 'Medium Delay', ...],
+  behavior: ['Melody', 'Chord Progression', 'Arp', ...],
+};
+```
 
 | Category   | Examples                                          |
 |------------|---------------------------------------------------|
@@ -40,6 +49,7 @@ Reuse the existing tag arrays from `generateRandomPrompt()` in `sidebar.js`, org
 ### Keyboard Interaction
 
 - `ArrowDown` / `ArrowUp`: navigate suggestions (wraps around)
+- The first suggestion is auto-highlighted when the dropdown appears
 - `Enter` or `Tab`: accept highlighted suggestion — replaces partial text after last comma with the full tag + `, `
 - `Esc`: dismiss dropdown
 - Any other key: continue filtering normally
@@ -47,7 +57,7 @@ Reuse the existing tag arrays from `generateRandomPrompt()` in `sidebar.js`, org
 
 ### Mouse Interaction
 
-- Click on a suggestion to accept it (same as Enter)
+- Use `mousedown` (not `click`) on suggestion rows to accept, preventing the textarea `blur` event from dismissing the dropdown before the selection registers
 - Mouse hover highlights the suggestion
 
 ### Edge Cases
@@ -55,17 +65,33 @@ Reuse the existing tag arrays from `generateRandomPrompt()` in `sidebar.js`, org
 - If the textarea is empty and user starts typing, autocomplete activates immediately
 - After accepting a suggestion, cursor is positioned after the `, ` ready for next tag
 - Tags already present in the prompt are excluded from suggestions (no duplicates)
-- Dropdown dismisses on blur (clicking outside textarea or dropdown)
+- Dropdown dismisses on blur (clicking outside textarea or dropdown) — use a short `setTimeout` (~150ms) on blur to allow mousedown on suggestions to fire first
+- Programmatic value changes (e.g. random prompt button setting `.value`) do NOT trigger autocomplete since no `input` event is dispatched — this is intentional
 
 ## 2. Settings Info Block
 
 ### Replaces
 
-The current `<span id="gen-opts-summary">` (tiny text next to Options button) is replaced with a styled info block `<div id="gen-info-block">`.
+The current `<span id="gen-opts-summary">` is removed. The entire `<div>` containing the Options button + summary span stays, but the `<span>` is replaced. A new `<div id="gen-info-block">` is added as a separate element between that Options row div and the Generate button.
 
 ### Layout
 
 Located between the Options button row and the Generate button in the sidebar generate panel.
+
+### Default Values Reference
+
+These are the defaults from `defaultOpts` in `sidebar.js`. The "differs from defaults" logic uses these values:
+
+| Setting        | Default          |
+|----------------|------------------|
+| seed           | -1 (random)      |
+| steps          | 100              |
+| cfg_scale      | 7.0              |
+| sampler_type   | dpmpp-3m-sde     |
+| sigma_min      | 0.03             |
+| sigma_max      | 500.0            |
+| cfg_rescale    | 0.0              |
+| negative_prompt| (empty string)   |
 
 ### Simple Mode (default)
 
@@ -82,7 +108,7 @@ If all settings are at defaults, shows: `Default settings`
 Shows all generation-specific settings in a compact 2-column grid:
 
 ```
-Steps: 150        CFG: 7
+Steps: 100        CFG: 7
 Sampler: dpmpp-3m-sde
 Seed: random      Rescale: 0
 Sigma: 0.03–500
@@ -96,7 +122,7 @@ Neg: noise, distortion
 ### Toggle
 
 - Small clickable text at the top-right corner of the info block: `▸ Simple` / `▾ Advanced`
-- Toggle preference saved to localStorage key `composer_summary_mode` (values: `simple` or `advanced`)
+- Toggle preference saved as `summaryMode` field inside the existing `composer_gen_opts` localStorage object (values: `"simple"` or `"advanced"`)
 
 ### Styling
 
@@ -108,18 +134,28 @@ Neg: noise, distortion
 
 ## 3. Persist Generator Settings
 
+### What Gets Persisted
+
+The `generationOpts` object includes these fields:
+- seed, steps, cfg_scale, sampler_type, sigma_min, sigma_max, cfg_rescale, negative_prompt, summaryMode
+
+The `lockKey` and `lockBpm` fields in `defaultOpts` are NOT part of `generationOpts` — they are Gradio-UI-specific toggle states and not relevant to the Composer's generation flow.
+
 ### Autosave (localStorage)
 
-The existing `composer_gen_opts` localStorage key already persists:
-- seed, steps, cfg_scale, sampler_type, sigma_min, sigma_max, cfg_rescale, negative_prompt
+The existing `composer_gen_opts` localStorage key already persists the generation options including `summaryMode`.
 
-Add `summaryMode` to the same stored object.
-
-No other autosave changes needed — the gen opts are already saved independently of the main autosave.
+Additionally, include `generationOpts` in the main autosave payload (`composer_autosave`) so that the autosave and project save formats are consistent.
 
 ### Project Save/Load
 
-When saving a project (via `saveProjectUI` or autosave), include a `generationOpts` key in the project payload:
+When saving a project, build the payload as:
+
+```js
+saveProject(name, { ...projectState, generationOpts: getGenOpts() })
+```
+
+Project JSON format:
 
 ```json
 {
@@ -127,16 +163,17 @@ When saving a project (via `saveProjectUI` or autosave), include a `generationOp
   "keyNote": "C",
   "keyScale": "minor",
   "masterVolume": 1,
-  "engine": { ... },
+  "engine": { "..." : "..." },
   "generationOpts": {
     "seed": -1,
-    "steps": 150,
+    "steps": 100,
     "cfg_scale": 7.0,
     "sampler_type": "dpmpp-3m-sde",
     "sigma_min": 0.03,
     "sigma_max": 500.0,
     "cfg_rescale": 0.0,
-    "negative_prompt": ""
+    "negative_prompt": "",
+    "summaryMode": "simple"
   }
 }
 ```
@@ -146,23 +183,23 @@ When loading a project, if `generationOpts` is present, restore it. If absent (o
 ### Cross-Module API
 
 Export from `sidebar.js`:
-- `getGenOpts()` — returns current `advancedOpts` object (shallow copy)
+- `getGenOpts()` — returns shallow copy of current `advancedOpts` object
 - `setGenOpts(opts)` — merges into `advancedOpts`, saves to localStorage, updates info block display
 
-Called from:
-- `main.js` `autoSave()` — calls `getGenOpts()` to include in saved state
-- `main.js` restore logic — calls `setGenOpts()` when restoring from autosave
-- `project.js` `saveProjectUI()` — calls `getGenOpts()` to include in project
-- `project.js` `loadProjectUI()` — calls `setGenOpts()` when loading a project
+Import paths:
+- `main.js` imports `getGenOpts`, `setGenOpts` from `sidebar.js` — uses in autosave and restore
+- `project.js` imports `getGenOpts`, `setGenOpts` directly from `sidebar.js` — uses in save/load
+
+This is a direct import, not passed as a parameter. `project.js` already imports from `api.js` and `toast.js`, adding `sidebar.js` follows the same pattern.
 
 ## Files Modified
 
 | File | Changes |
 |------|---------|
-| `composer/src/sidebar.js` | Tag dictionary, autocomplete dropdown logic, info block rendering, simple/advanced toggle, export getGenOpts/setGenOpts |
-| `composer/src/main.js` | Include genOpts in autosave payload, restore genOpts from autosave, pass setGenOpts to project.js |
-| `composer/src/project.js` | Include genOpts in project save, restore on project load |
-| `composer/index.html` | Replace summary span with info block container div |
+| `composer/src/sidebar.js` | Extract tag arrays to module-level `TAG_DICTIONARY`, autocomplete dropdown logic, info block rendering, simple/advanced toggle, export `getGenOpts`/`setGenOpts` |
+| `composer/src/main.js` | Include `generationOpts` in autosave payload, restore genOpts from autosave |
+| `composer/src/project.js` | Import `getGenOpts`/`setGenOpts` from `sidebar.js`, include in project save, restore on project load |
+| `composer/index.html` | Add `<div id="gen-info-block">` between options row and generate button |
 | `composer/src/style.css` | Autocomplete dropdown styles, info block card styles, category color classes |
 
 ## Out of Scope
@@ -170,3 +207,4 @@ Called from:
 - Autocomplete for negative prompt textarea (only the main prompt gets autocomplete)
 - Custom user-defined tags (only built-in Foundation-1 tags)
 - Syncing settings back to the Gradio UI (one-way: DAW → Gradio API)
+- The `lockKey`/`lockBpm` fields in `defaultOpts` (Gradio-specific, not used by Composer generation)
