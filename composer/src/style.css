@@ -396,93 +396,11 @@ select:focus {
   position: relative;
 }
 
-/* ── Waveform-playlist dark theme overrides ─────────────────────────────────── */
-
-/* Override waveform-playlist CSS custom properties */
-.playlist {
-  --wp-controls-border-color: var(--border);
-  --wp-controls-background-color: var(--bg-mid);
-  --wp-mute-solo-color: var(--text);
-  --wp-mute-solo-hover-color: #fff;
-  --wp-mute-solo-focus-color: rgba(233, 69, 96, 0.3);
-  --wp-channel-color: var(--bg-track);
-  --wp-channel-progress-color: var(--accent);
-  --wp-cursor-color: var(--accent);
-  --wp-selection-background-color: rgba(233, 69, 96, 0.15);
-  --wp-selection-point-color: var(--accent);
-  --wp-tracks-container-background-color: var(--bg-dark);
-  --wp-range-slider-label-color: var(--text);
-  --wp-range-slider-color: var(--accent);
-  --wp-range-slider-focus-color: var(--accent);
-  --wp-range-slider-background-color: #333;
-  --wp-range-slider-background-focus-color: #444;
-  --wp-fade-background-color: rgba(233, 69, 96, 0.1);
-
-  margin: 0;
-}
-
-/* Controls panel (left side of each track) */
-.playlist .controls {
-  background: var(--bg-mid) !important;
-  border-color: var(--border) !important;
-  padding: 4px 0;
-}
-
-/* Track name header */
-.playlist .controls .track-header {
-  color: var(--text);
-  font-size: 10px;
-  font-weight: 600;
-  padding: 2px 6px;
-  height: 22px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-/* Mute/Solo buttons */
-.playlist .controls .btn-outline-dark {
-  color: var(--text);
-  border-color: var(--border);
-  font-size: 10px;
-  padding: 2px 6px;
-  border-radius: 3px;
-}
-
-.playlist .controls .btn-outline-dark:hover {
-  background: var(--accent3);
-  color: #fff;
-  border-color: var(--accent);
-}
-
-/* Volume/pan sliders */
-.playlist .controls label {
-  color: var(--text);
-  font-size: 11px;
-  padding: 0 4px;
-  margin-bottom: 2px;
-}
-
-.playlist .controls label:before,
-.playlist .controls label:after {
-  color: var(--text);
-  font-size: 14px;
-}
-
-/* Channel (waveform background) */
-.playlist .channel {
-  background: var(--bg-track) !important;
-}
-
-/* Time scale */
-.playlist .playlist-time-scale {
-  background: var(--bg-mid);
-  color: var(--text);
-}
-
-/* Make canvas crisp */
-.playlist canvas {
+/* ── Canvas Timeline ──────────────────────────────────────────────────────── */
+#timeline-canvas {
   display: block;
+  background: var(--bg-dark);
+  cursor: default;
 }
 
 /* Drop zone overlay when dragging */
@@ -686,23 +604,7 @@ select:focus {
   margin: 4px 0;
 }
 
-/* ── Loop Region Markers ───────────────────────────────────────────────────── */
-.playlist .selection.segment {
-  background: rgba(76, 175, 130, 0.2) !important;
-  border-left: 2px solid #4caf82;
-  border-right: 2px solid #4caf82;
-}
-
-/* ── Song Length End Marker ─────────────────────────────────────────────────── */
-.song-end-marker {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  border-left: 2px dashed #666;
-  pointer-events: none;
-  z-index: 4;
-}
+/* (old waveform-playlist loop/marker styles removed — now handled by Canvas engine) */
 
 /* ── Toast Notifications ─────────────────────────────────────────────────── */
 #toast-container {
