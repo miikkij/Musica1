@@ -1,9 +1,61 @@
 
 # 🎵 Musica1
 
-**AI-powered music composition suite** — generate audio clips with text prompts and arrange them into full songs using a built-in multi-track DAW.
+**AI-powered music composition suite** — generate audio clips with text prompts and arrange them into full songs using a built-in multi-track DAW. Everything runs locally on your own computer.
+
+> **🤖 Built with Claude** — This project is an experiment in AI-accelerated development. The entire multi-track composer, Canvas DAW engine, backend APIs, and frontend were designed and implemented in collaboration with [Claude Code](https://claude.ai/claude-code) (Anthropic's coding agent). The idea: explore what it looks like to build a local-first, AI-powered music creation tool at full speed — from concept to working software — using AI models that run on your own hardware, no cloud APIs needed.
 
 Based on [RC Stable Audio Tools](https://github.com/RoyalCities/RC-stable-audio-tools) (fork of Stability AI's Stable Audio Tools) with a custom **multi-track composer** for arranging AI-generated clips into compositions.
+
+---
+
+## 🚀 Get Started in 3 Steps
+
+### 1. Clone the repo
+
+```bash
+git clone https://github.com/miikkij/Musica1.git
+cd Musica1
+```
+
+### 2. Run the setup script
+
+| Platform | Command |
+|----------|---------|
+| **Windows** | Double-click `setup.bat` |
+| **macOS** | `chmod +x setup.sh && ./setup.sh` |
+| **Linux** | `chmod +x setup.sh && ./setup.sh` |
+
+The setup script checks your system and installs everything automatically:
+- **Python 3.10+** — the programming language everything runs on
+- **uv** — a fast package manager that sets up the Python environment
+- **Node.js** — needed to build the Composer's browser interface
+- **GPU/CUDA** — detects your graphics card for fast audio generation (works without one too, just slower)
+- **Python packages** — all the AI/audio libraries (PyTorch, librosa, etc.)
+- **Composer frontend** — builds the DAW browser app
+
+If something is missing, the script tells you exactly what to install and where to get it.
+
+### 3. Start Musica1
+
+**Windows:** Double-click `start.bat`
+
+**macOS / Linux:**
+```bash
+# Terminal 1 — AI Audio Generator
+uv run python run_gradio.py
+
+# Terminal 2 — Multi-Track Composer
+uv run python -m composer.server.app
+```
+
+Then open in your browser:
+- **http://localhost:7860** — Audio Generator (create clips from text prompts)
+- **http://localhost:8000** — Multi-Track Composer (arrange clips into songs)
+
+> **First time?** The generator will show a model downloader. Download **RoyalCities/Foundation-1** (recommended) and restart the app. After that, you can generate audio from text descriptions like *"Rhodes Piano, Warm, Rich, Chord Progression, Medium Reverb"*.
+
+---
 
 ## What's New in Musica1
 
@@ -57,32 +109,7 @@ This repo inherits all features from RC Stable Audio Tools:
   <img src="https://i.imgur.com/ApH5SOM.gif" alt="Midi Converter Example Gif" width="75%">
 </p>
 
-## 🚀 Quick Start (New Users)
-
-```bash
-git clone https://github.com/miikkij/Musica1.git
-cd Musica1
-```
-
-Then run the setup script — it checks everything and installs what's needed:
-
-| Platform | Command |
-|----------|---------|
-| Windows  | Double-click `setup.bat` or run `python setup_musica1.py` |
-| macOS    | `chmod +x setup.sh && ./setup.sh` |
-| Linux    | `chmod +x setup.sh && ./setup.sh` |
-
-The setup script will:
-1. Check Python, uv, Node.js, Git, GPU/CUDA
-2. Create a virtual environment and install all Python packages
-3. Build the Composer frontend
-4. Check for AI models
-
-After setup, start Musica1 with `start.bat` (Windows) or run both services manually.
-
----
-
-## 🔧 Manual Installation
+## 🔧 Manual Installation (if you prefer doing it yourself)
 
 ### 📥 Clone the Repository
 
