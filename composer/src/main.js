@@ -8,7 +8,8 @@ import {
   play,
   stop,
 } from './transport.js';
-import { initTimeline, addTrackToTimeline } from './timeline.js';
+import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut } from './timeline.js';
+import { initToolbar } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 
 console.log('Composer app loaded');
@@ -83,8 +84,22 @@ initTimeline(projectState).then(() => {
   console.error('Timeline init failed:', err);
 });
 
+initToolbar({
+  onModeChange: (mode) => setTimelineState(mode),
+  onZoomIn: () => zoomIn(),
+  onZoomOut: () => zoomOut(),
+});
+
 // ── Drop zone: drag clips from sidebar onto timeline ──────────────────────────
 const timelineContainer = document.getElementById('timeline-container');
+
+timelineContainer.addEventListener('wheel', (e) => {
+  if (e.ctrlKey || e.metaKey) {
+    e.preventDefault();
+    if (e.deltaY < 0) zoomIn();
+    else zoomOut();
+  }
+}, { passive: false });
 
 timelineContainer.addEventListener('dragover', (e) => {
   e.preventDefault();

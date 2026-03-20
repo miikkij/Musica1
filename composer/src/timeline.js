@@ -36,6 +36,22 @@ export async function initTimeline(projectState) {
 
 export function getEventEmitter() { return ee; }
 
+export function setTimelineState(state) {
+  if (ee) ee.emit('statechange', state);
+}
+
+export function zoomIn() {
+  if (ee) ee.emit('zoomin');
+}
+
+export function zoomOut() {
+  if (ee) ee.emit('zoomout');
+}
+
+export function getPlaylist() {
+  return playlist;
+}
+
 export function addTrackToTimeline(filename, startTime = 0) {
   if (!playlist) {
     console.warn('Timeline not initialized yet');
