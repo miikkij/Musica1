@@ -11,6 +11,7 @@ import {
 import { initTimeline, addTrackToTimeline, setTimelineState, zoomIn, zoomOut } from './timeline.js';
 import { initToolbar } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
+import { initContextMenu, showContextMenu } from './context-menu.js';
 
 console.log('Composer app loaded');
 
@@ -88,6 +89,15 @@ initToolbar({
   onModeChange: (mode) => setTimelineState(mode),
   onZoomIn: () => zoomIn(),
   onZoomOut: () => zoomOut(),
+});
+
+document.getElementById('playlist-container').addEventListener('contextmenu', (e) => {
+  e.preventDefault();
+  showContextMenu(e.clientX, e.clientY);
+});
+
+initContextMenu((action) => {
+  console.log('Context menu action:', action);
 });
 
 // ── Drop zone: drag clips from sidebar onto timeline ──────────────────────────
