@@ -185,6 +185,80 @@ When you launch with `python run_gradio.py`, it will:
 3. If the models folder is empty, it will launch a HFFS (HuggingFace downloader) UI, where you can either select from the preset models, or enter any HuggingFace repo id to download. (After downloading a model, you will need to restart the app to launch the full UI).
 4. To customize the preset models that appear in the downloader dropdown, edit the `config.json` file to add more entries to the `hffs[0].options` array.
 
+## Multi-Track Composer
+
+A built-in browser-based DAW for arranging AI-generated audio clips into full compositions.
+
+### Quick Start
+
+Double-click `start.bat` to launch both the Gradio generator and the Composer. Or run them separately:
+
+```bash
+# Terminal 1: Audio generator
+uv run python run_gradio.py
+
+# Terminal 2: Composer
+uv run python -m composer.server.app
+```
+
+Then open http://localhost:8000 in your browser.
+
+### Setup (first time only)
+
+The composer frontend needs to be built once:
+
+```bash
+cd composer
+npm install
+npm run build
+```
+
+Dependencies (FastAPI, uvicorn) should already be installed. If not:
+
+```bash
+uv pip install fastapi uvicorn
+```
+
+### How it works
+
+1. **Generate clips** in the Gradio UI (port 7860) or directly in the Composer's sidebar
+2. **Drag clips** from the clip library onto the timeline
+3. **Arrange** clips by dragging them to different positions on the timeline
+4. **Play/Stop** using the transport controls — all tracks play in sync
+5. **Adjust** per-track volume, mute, and solo
+6. **Export** the mix as a single WAV file
+7. **Save/Load** projects to continue working later
+
+### Features
+
+- **Clip Library** — all generated WAVs appear automatically, with duration and drag-and-drop support
+- **Multi-track Timeline** — powered by waveform-playlist, with waveform rendering and bar/beat grid
+- **BPM-locked Generation** — set a project BPM and all generated clips match it
+- **BPM Detection** — librosa-based detection for imported clips
+- **Time Stretching** — stretch clips to match project BPM (librosa phase vocoder)
+- **Project Persistence** — save/load compositions as JSON
+- **Mix Export** — mix all tracks to a single WAV with volume, mute/solo, and peak normalization
+- **Send to Composer** — button in Gradio UI sends generated audio directly to the composer's clip library
+- **Dark Theme** — matches the Gradio UI aesthetic
+
+### Architecture
+
+```
+Browser
+├── Gradio UI (port 7860) ── "Send to Composer" ──┐
+└── Composer App (port 8000)                       │
+    ├── Frontend (waveform-playlist + Tone.js)     │
+    └── FastAPI Backend ◄──────────────────────────┘
+        ├── /api/generate   (proxies to Gradio)
+        ├── /api/clips      (list/serve WAVs)
+        ├── /api/bpm        (BPM detection)
+        ├── /api/project    (save/load)
+        ├── /api/export     (mix to WAV)
+        └── /api/stretch    (time-stretch)
+```
+
+---
+
 ## 🛠️ Advanced Usage
 
 For detailed instructions on training and inference commands, flags, and additional options, refer to the main GitHub documentation:
