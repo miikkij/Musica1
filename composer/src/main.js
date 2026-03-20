@@ -23,6 +23,7 @@ const projectState = {
   keyNote: 'C',
   keyScale: 'minor',
   masterVolume: 1,
+  targetLength: null,
   tracks: [],
 };
 
@@ -54,6 +55,27 @@ keyScaleSelect.addEventListener('change', () => {
 const masterVolInput = document.getElementById('input-master-vol');
 masterVolInput.addEventListener('input', () => {
   projectState.masterVolume = parseFloat(masterVolInput.value);
+});
+
+// ── Song length sync ─────────────────────────────────────────────────────────
+const lengthInput = document.getElementById('input-length');
+lengthInput.addEventListener('change', () => {
+  const val = lengthInput.value.trim();
+  if (val === '' || val.toLowerCase() === 'auto') {
+    projectState.targetLength = null;
+    lengthInput.value = 'auto';
+    return;
+  }
+  const parts = val.split(':');
+  let seconds = 0;
+  if (parts.length === 2) {
+    seconds = parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+  } else {
+    seconds = parseInt(parts[0], 10);
+  }
+  if (!isNaN(seconds) && seconds > 0) {
+    projectState.targetLength = seconds;
+  }
 });
 
 // ── Play / Stop / Loop buttons ────────────────────────────────────────────────
