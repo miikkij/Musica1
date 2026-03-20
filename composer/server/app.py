@@ -32,3 +32,11 @@ def health():
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="127.0.0.1", port=8000)
+
+from pathlib import Path
+from fastapi.staticfiles import StaticFiles
+
+# Serve built frontend — MUST be last so API routes take precedence
+dist_dir = Path(__file__).parent.parent / "dist"
+if dist_dir.exists():
+    app.mount("/", StaticFiles(directory=str(dist_dir), html=True), name="frontend")
