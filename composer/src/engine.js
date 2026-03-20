@@ -222,8 +222,12 @@ export function zoomOut() {
 }
 
 // ── Serialization (for autosave/restore) ─────────────────────────────────────
+export function getPixelsPerSecond() { return pixelsPerSecond; }
+export function setPixelsPerSecond(pps) { pixelsPerSecond = pps; draw(); }
+
 export function getState() {
   return {
+    pixelsPerSecond,
     tracks: tracks.map(t => ({
       id: t.id,
       name: t.name,
@@ -244,6 +248,7 @@ export function getState() {
 
 export async function restoreState(state) {
   if (!state?.tracks) return;
+  if (state.pixelsPerSecond) pixelsPerSecond = state.pixelsPerSecond;
   tracks = [];
   nextTrackId = state.nextTrackId || 1;
   nextClipId = state.nextClipId || 1;
