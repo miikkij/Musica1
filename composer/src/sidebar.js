@@ -82,40 +82,71 @@ export async function refreshClipLibrary() {
 
 /** Show the advanced options modal */
 function showOptionsModal() {
+  const S = (id, val) => `
+    <div class="opt-row">
+      <div class="opt-slider-row">
+        <input type="range" id="${id}" min="${id === 'opt-steps' ? 10 : 0}" max="${id === 'opt-steps' ? 500 : id === 'opt-cfg' ? 25 : 1}" step="${id === 'opt-steps' ? 1 : 0.1}" value="${val}">
+        <input type="number" id="${id}-num" value="${val}" step="${id === 'opt-steps' ? 1 : 0.1}" class="opt-num-input">
+      </div>
+    </div>`;
+
   const html = `
-    <div style="display:flex;flex-direction:column;gap:10px;min-width:320px;font-size:12px;">
-      <label>Seed (-1 = random)
-        <input type="number" id="opt-seed" value="${advancedOpts.seed}" style="width:100%">
-      </label>
-      <label>Steps
-        <input type="range" id="opt-steps" min="10" max="500" step="1" value="${advancedOpts.steps}" style="width:100%">
-        <span id="opt-steps-val">${advancedOpts.steps}</span>
-      </label>
-      <label>CFG Scale
-        <input type="range" id="opt-cfg" min="0" max="25" step="0.1" value="${advancedOpts.cfg_scale}" style="width:100%">
-        <span id="opt-cfg-val">${advancedOpts.cfg_scale}</span>
-      </label>
-      <label>Sampler
-        <select id="opt-sampler" style="width:100%">
+    <div class="opts-grid">
+
+      <div class="opt-section">
+        <div class="opt-section-title">Seed</div>
+        <p class="opt-desc">Controls reproducibility. Set to <b>-1</b> for a new random result each time. Use a specific number to get the exact same output again.</p>
+        <input type="number" id="opt-seed" value="${advancedOpts.seed}" class="opt-full-input">
+      </div>
+
+      <div class="opt-section">
+        <div class="opt-section-title">Diffusion Steps</div>
+        <p class="opt-desc">How many denoising steps the model runs. <b>More steps = better quality but slower.</b> 75-150 is the sweet spot. Below 50 can sound rough.</p>
+        ${S('opt-steps', advancedOpts.steps)}
+      </div>
+
+      <div class="opt-section">
+        <div class="opt-section-title">CFG Scale (Classifier-Free Guidance)</div>
+        <p class="opt-desc">How closely the model follows your prompt. <b>Higher = more literal</b>, lower = more creative/loose. 5-9 works well. Above 15 can cause artifacts.</p>
+        ${S('opt-cfg', advancedOpts.cfg_scale)}
+      </div>
+
+      <div class="opt-section">
+        <div class="opt-section-title">Sampler Algorithm</div>
+        <p class="opt-desc">The diffusion sampling method. <b>dpmpp-3m-sde</b> is the default and works great. Others may produce different textures or converge faster.</p>
+        <select id="opt-sampler" class="opt-full-input">
           ${['dpmpp-2m-sde', 'dpmpp-3m-sde', 'k-heun', 'k-lms', 'k-dpmpp-2s-ancestral', 'k-dpm-2', 'k-dpm-fast']
             .map(s => `<option value="${s}" ${s === advancedOpts.sampler_type ? 'selected' : ''}>${s}</option>`).join('')}
         </select>
-      </label>
-      <div style="display:flex;gap:8px;">
-        <label style="flex:1">Sigma Min
-          <input type="number" id="opt-smin" value="${advancedOpts.sigma_min}" step="0.01" min="0" max="2" style="width:100%">
-        </label>
-        <label style="flex:1">Sigma Max
-          <input type="number" id="opt-smax" value="${advancedOpts.sigma_max}" step="0.1" min="0" max="1000" style="width:100%">
-        </label>
       </div>
-      <label>CFG Rescale
-        <input type="range" id="opt-cfgr" min="0" max="1" step="0.01" value="${advancedOpts.cfg_rescale}" style="width:100%">
-        <span id="opt-cfgr-val">${advancedOpts.cfg_rescale}</span>
-      </label>
-      <label>Negative Prompt
-        <textarea id="opt-neg" rows="2" style="width:100%;resize:vertical">${advancedOpts.negative_prompt}</textarea>
-      </label>
+
+      <div class="opt-section">
+        <div class="opt-section-title">Sigma Range</div>
+        <p class="opt-desc">Controls the noise schedule. <b>Sigma Min</b> (0.03 default) sets the final noise floor. <b>Sigma Max</b> (500 default) sets the starting noise level. Change these only if you know what you're doing.</p>
+        <div style="display:flex;gap:16px;">
+          <label style="flex:1">
+            <span class="opt-label-sm">Min</span>
+            <input type="number" id="opt-smin" value="${advancedOpts.sigma_min}" step="0.01" min="0" max="2" class="opt-full-input">
+          </label>
+          <label style="flex:1">
+            <span class="opt-label-sm">Max</span>
+            <input type="number" id="opt-smax" value="${advancedOpts.sigma_max}" step="0.1" min="0" max="1000" class="opt-full-input">
+          </label>
+        </div>
+      </div>
+
+      <div class="opt-section">
+        <div class="opt-section-title">CFG Rescale</div>
+        <p class="opt-desc">Reduces over-saturation from high CFG values. <b>0 = off</b>, higher values dampen the guidance. Try 0.3-0.5 if your outputs sound harsh at high CFG.</p>
+        ${S('opt-cfgr', advancedOpts.cfg_rescale)}
+      </div>
+
+      <div class="opt-section opt-section-full">
+        <div class="opt-section-title">Negative Prompt</div>
+        <p class="opt-desc">Tags to <b>avoid</b> in the output. For example "noise, distortion" to get cleaner results. Leave empty for default behavior.</p>
+        <textarea id="opt-neg" rows="3" class="opt-full-input" style="resize:vertical">${advancedOpts.negative_prompt}</textarea>
+      </div>
+
     </div>
   `;
 
@@ -139,14 +170,16 @@ function showOptionsModal() {
     }},
   ]);
 
-  // Live value display for sliders
+  // Sync sliders <-> number inputs
   setTimeout(() => {
-    const stepsSlider = document.getElementById('opt-steps');
-    const cfgSlider = document.getElementById('opt-cfg');
-    const cfgrSlider = document.getElementById('opt-cfgr');
-    if (stepsSlider) stepsSlider.oninput = () => document.getElementById('opt-steps-val').textContent = stepsSlider.value;
-    if (cfgSlider) cfgSlider.oninput = () => document.getElementById('opt-cfg-val').textContent = cfgSlider.value;
-    if (cfgrSlider) cfgrSlider.oninput = () => document.getElementById('opt-cfgr-val').textContent = cfgrSlider.value;
+    ['opt-steps', 'opt-cfg', 'opt-cfgr'].forEach(id => {
+      const slider = document.getElementById(id);
+      const num = document.getElementById(id + '-num');
+      if (slider && num) {
+        slider.oninput = () => { num.value = slider.value; };
+        num.oninput = () => { slider.value = num.value; };
+      }
+    });
   }, 50);
 }
 
