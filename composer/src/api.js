@@ -114,6 +114,20 @@ export async function exportMix(project) {
 }
 
 /**
+ * POST /api/loop — repeat a clip N times
+ * @param {string} filename
+ * @param {number} repeatCount
+ */
+export async function loopClip(filename, repeatCount) {
+  const res = await fetch(`${BASE}/loop`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ filename, repeat_count: repeatCount }),
+  });
+  return handleResponse(res);
+}
+
+/**
  * POST /api/stretch — time-stretch a clip to a new BPM
  * @param {string} filename
  * @param {number} originalBpm

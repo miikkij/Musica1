@@ -9,12 +9,14 @@ from composer.server.routes.project import router as project_router  # noqa: E40
 from composer.server.routes.export import router as export_router  # noqa: E402
 from composer.server.routes.stretch import router as stretch_router  # noqa: E402
 from composer.server.routes.generate import router as generate_router  # noqa: E402
+from composer.server.routes.loop import router as loop_router  # noqa: E402
 app.include_router(clips_router)
 app.include_router(bpm_router)
 app.include_router(project_router)
 app.include_router(export_router)
 app.include_router(stretch_router)
 app.include_router(generate_router)
+app.include_router(loop_router)
 
 app.add_middleware(
     CORSMiddleware,

@@ -73,6 +73,20 @@ def mix_down(tracks: list[dict], generations_dir: Path, bpm: float) -> AudioSegm
     return mix
 
 
+def loop_clip(filepath: Path, repeat_count: int, output_dir: Path) -> Path:
+    """Repeat a WAV file N times and save as a new file.
+    If repeat_count is 1, returns the original path unchanged.
+    """
+    if repeat_count <= 1:
+        return filepath
+    audio = AudioSegment.from_wav(str(filepath))
+    looped = audio * repeat_count
+    output_name = f"{filepath.stem}_loop{repeat_count}.wav"
+    output_path = output_dir / output_name
+    looped.export(str(output_path), format="wav")
+    return output_path
+
+
 def time_stretch_clip(filepath: Path, original_bpm: float, target_bpm: float, output_dir: Path) -> Path:
     y, sr = librosa.load(str(filepath), sr=None, mono=False)
     rate = target_bpm / original_bpm
