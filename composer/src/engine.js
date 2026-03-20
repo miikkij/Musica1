@@ -225,6 +225,21 @@ export function zoomOut() {
 // ── Serialization (for autosave/restore) ─────────────────────────────────────
 export function getPixelsPerSecond() { return pixelsPerSecond; }
 export function setPixelsPerSecond(pps) { pixelsPerSecond = pps; draw(); }
+export function getScrollX() { return scrollX; }
+export function setScrollX(x) { scrollX = Math.max(0, x); draw(); }
+export function getCanvasWidth() { return canvas ? canvas.clientWidth : 800; }
+export function getTrackHeaderWidth() { return TRACK_HEADER_WIDTH; }
+
+export function getTotalDuration() {
+  let maxEnd = 10; // minimum 10s
+  for (const track of tracks) {
+    for (const clip of track.clips) {
+      const end = clip.startTime + clip.duration * clip.loopCount;
+      if (end > maxEnd) maxEnd = end;
+    }
+  }
+  return maxEnd;
+}
 
 export function getState() {
   return {

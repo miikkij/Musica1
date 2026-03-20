@@ -3,7 +3,7 @@ import { refreshClipLibrary, initGeneratePanel } from './sidebar.js';
 import { initToolbar, setMode as setToolbarMode } from './toolbar.js';
 import { saveProjectUI, loadProjectUI, exportMixUI } from './project.js';
 import { initContextMenu, showContextMenu } from './context-menu.js';
-import { initMinimap, renderMinimap } from './minimap.js';
+import { initMinimap } from './minimap.js';
 import { toast, dialogInfo } from './toast.js';
 import {
   initEngine,
@@ -158,20 +158,9 @@ initEngine(playlistContainer);
 setProjectBpm(projectState.bpm);
 setMasterVolume(projectState.masterVolume);
 
-// Notify on change for minimap updates
+// Notify on change for autosave
 setOnChange(() => {
-  const tracks = getTracks();
-  if (tracks.length > 0) {
-    const tracksInfo = tracks.map((t, i) => ({
-      index: i,
-      name: t.name,
-      start: 0,
-      duration: Math.max(...t.clips.map(c => c.startTime + c.duration * c.loopCount), 0),
-      muted: t.muted,
-      soloed: t.solo,
-    }));
-    renderMinimap(tracksInfo);
-  }
+  // minimap self-updates via requestAnimationFrame
 });
 
 setOnSelect((start, end) => {
