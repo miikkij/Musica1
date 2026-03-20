@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI(title="Composer API")
 
 from composer.server.routes.clips import router as clips_router  # noqa: E402
+from composer.server.routes.bpm import router as bpm_router  # noqa: E402
 app.include_router(clips_router)
+app.include_router(bpm_router)
 
 app.add_middleware(
     CORSMiddleware,
